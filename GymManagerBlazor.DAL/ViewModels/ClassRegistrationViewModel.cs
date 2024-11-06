@@ -8,5 +8,8 @@ namespace GymManagerBlazor.BUS.ViewModels
 {
     public class ClassRegistrationViewModel
     {
+        public int Id { get; set; }
+        public int MemberId { get; set; }
+        public int ClassId { get; set; }
     }
 }
