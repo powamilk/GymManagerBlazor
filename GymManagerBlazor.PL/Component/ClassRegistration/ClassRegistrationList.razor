@@ -1,0 +1,68 @@
+﻿@page "/registrations"
+@using GymManagerBlazor.BUS.Models
+@using GymManagerBlazor.BUS.Services.Interface
+@inject IClassRegistrationService ClassRegistrationService
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<h3>Danh sách Đăng Ký Lớp Học</h3>
+
+<button @onclick="CreateRegistration">Thêm Đăng Ký Mới</button>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID Thành Viên</th>
+            <th>ID Lớp Học</th>
+            <th>Thao Tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var registration in Registrations)
+        {
+            <tr>
+                <td>@registration.MemberId</td>
+                <td>@registration.ClassId</td>
+                <td>
+                    <button @onclick="() => ViewDetails(registration.Id)">Chi Tiết</button>
+                    <button @onclick="() => EditRegistration(registration.Id)">Chỉnh Sửa</button>
+                    <button @onclick="() => DeleteRegistration(registration.Id)">Xóa</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<ClassRegistrationModel> Registrations { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Registrations = await ClassRegistrationService.GetAllRegistrationsAsync();
+    }
+
+    private void CreateRegistration()
+    {
+        Navigation.NavigateTo("/registrations/create");
+    }
+
+    private void ViewDetails(int id)
+    {
+        Navigation.NavigateTo($"/registrations/details/{id}");
+    }
+
+    private void EditRegistration(int id)
+    {
+        Navigation.NavigateTo($"/registrations/edit/{id}");
+    }
+
+    private async Task DeleteRegistration(int id)
+    {
+        var confirmed = await JS.InvokeAsync<bool>("confirm", "Bạn có chắc muốn xóa đăng ký này?");
+        if (confirmed)
+        {
+            await ClassRegistrationService.DeleteRegistrationAsync(id);
+            Registrations = await ClassRegistrationService.GetAllRegistrationsAsync();
+        }
+    }
+}

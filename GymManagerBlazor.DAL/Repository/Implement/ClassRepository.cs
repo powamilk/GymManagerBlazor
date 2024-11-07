@@ -12,7 +12,7 @@ namespace GymManagerBlazor.DAL.Repository.Implement
     public class ClassRepository : IClassRepository
     {
         private readonly ApiClient _apiClient;
-        private const string BaseUrl = "api/classes";
+        private const string BaseUri = "api/classes";
 
         public ClassRepository(ApiClient apiClient)
         {
@@ -21,27 +21,27 @@ namespace GymManagerBlazor.DAL.Repository.Implement
 
         public async Task<List<ClassViewModel>> GetAllAsync()
         {
-            return await _apiClient.GetAsync<List<ClassViewModel>>(BaseUrl);
+            return await _apiClient.GetAsync<List<ClassViewModel>>(BaseUri);
         }
 
         public async Task<ClassViewModel> GetByIdAsync(int id)
         {
-            return await _apiClient.GetAsync<ClassViewModel>($"{BaseUrl}/{id}");
+            return await _apiClient.GetAsync<ClassViewModel>($"{BaseUri}/{id}");
         }
 
-        public async Task<bool> CreateAsync(ClassViewModel classVM)
+        public async Task<bool> CreateAsync(ClassViewModel classModel)
         {
-            return await _apiClient.PostAsync(BaseUrl, classVM);
+            return await _apiClient.PostAsync(BaseUri, classModel);
         }
 
-        public async Task<bool> UpdateAsync(int id, ClassViewModel classVM)
+        public async Task<bool> UpdateAsync(int id, ClassViewModel classModel)
         {
-            return await _apiClient.PutAsync($"{BaseUrl}/{id}", classVM);
+            return await _apiClient.PutAsync($"{BaseUri}/{id}", classModel);
         }
 
         public async Task<bool> DeleteAsync(int id)
         {
-            return await _apiClient.DeleteAsync($"{BaseUrl}/{id}");
+            return await _apiClient.DeleteAsync($"{BaseUri}/{id}");
         }
     }
 }

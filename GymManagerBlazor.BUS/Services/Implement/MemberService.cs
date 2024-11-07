@@ -1,4 +1,7 @@
-﻿using GymManagerBlazor.BUS.Exceptions;
+﻿using AutoMapper;
+using FluentValidation;
+using GymManagerBlazor.BUS.Exceptions;
+using GymManagerBlazor.BUS.Models;
 using GymManagerBlazor.BUS.Services.Interface;
 using GymManagerBlazor.BUS.Validators;
 using GymManagerBlazor.BUS.ViewModels;
@@ -8,79 +11,65 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FluentValidationException = FluentValidation.ValidationException;
 
 namespace GymManagerBlazor.BUS.Services.Implement
 {
     public class MemberService : IMemberService
     {
         private readonly IMemberRepository _memberRepository;
-        private readonly MemberValidator _memberValidator;
+        private readonly IMapper _mapper;
+        private readonly IValidator<MemberModel> _validator;
 
-        public MemberService(IMemberRepository memberRepository)
+        public MemberService(IMemberRepository memberRepository, IMapper mapper, IValidator<MemberModel> validator)
         {
             _memberRepository = memberRepository;
-            _memberValidator = new MemberValidator();
+            _mapper = mapper;
+            _validator = validator;
         }
 
-        public async Task<List<MemberViewModel>> GetAllMembersAsync()
+        public async Task<List<MemberModel>> GetAllMembersAsync()
         {
-            return await _memberRepository.GetAllAsync();
+            var memberVMs = await _memberRepository.GetAllAsync();
+            return _mapper.Map<List<MemberModel>>(memberVMs);
         }
 
-        public async Task<MemberViewModel> GetMemberByIdAsync(int id)
+        public async Task<MemberModel> GetMemberByIdAsync(int id)
         {
-            var memberEntity = await _memberRepository.GetByIdAsync(id);
-            if (memberEntity == null)
+            var memberVM = await _memberRepository.GetByIdAsync(id);
+            if (memberVM == null)
             {
-                throw new EntityNotFoundException("Member", id);
+                throw new Exception($"Không tìm thấy thành viên với ID = {id}");
             }
-            return memberEntity;
+            return _mapper.Map<MemberModel>(memberVM);
         }
 
-        public async Task<bool> CreateMemberAsync(MemberViewModel memberVM)
+        public async Task<bool> CreateMemberAsync(MemberModel member)
         {
-            var validationResult = _memberValidator.Validate(memberVM);
+            var validationResult = await _validator.ValidateAsync(member);
             if (!validationResult.IsValid)
             {
-                var errors = new Dictionary<string, string>();
-                foreach (var failure in validationResult.Errors)
-                {
-                    errors[failure.PropertyName] = failure.ErrorMessage;
-                }
-                throw new ValidationException(errors);
+                throw new FluentValidationException(validationResult.Errors);
             }
 
+            var memberVM = _mapper.Map<MemberViewModel>(member);
             return await _memberRepository.CreateAsync(memberVM);
         }
 
-        public async Task<bool> UpdateMemberAsync(int id, MemberViewModel memberVM)
+        public async Task<bool> UpdateMemberAsync(int id, MemberModel member)
         {
-            var validationResult = _memberValidator.Validate(memberVM);
+            var validationResult = await _validator.ValidateAsync(member);
             if (!validationResult.IsValid)
             {
-                var errors = new Dictionary<string, string>();
-                foreach (var failure in validationResult.Errors)
-                {
-                    errors[failure.PropertyName] = failure.ErrorMessage;
-                }
-                throw new ValidationException(errors);
+                throw new FluentValidationException(validationResult.Errors);
             }
 
-            if (await _memberRepository.GetByIdAsync(id) == null)
-            {
-                throw new EntityNotFoundException("Member", id);
-            }
-
+            var memberVM = _mapper.Map<MemberViewModel>(member);
             return await _memberRepository.UpdateAsync(id, memberVM);
         }
 
         public async Task<bool> DeleteMemberAsync(int id)
         {
-            if (await _memberRepository.GetByIdAsync(id) == null)
-            {
-                throw new EntityNotFoundException("Member", id);
-            }
-
             return await _memberRepository.DeleteAsync(id);
         }
     }

@@ -1,4 +1,7 @@
-﻿using GymManagerBlazor.BUS.Exceptions;
+﻿using AutoMapper;
+using FluentValidation;
+using GymManagerBlazor.BUS.Exceptions;
+using GymManagerBlazor.BUS.Models;
 using GymManagerBlazor.BUS.Services.Interface;
 using GymManagerBlazor.BUS.Validators;
 using GymManagerBlazor.BUS.ViewModels;
@@ -8,79 +11,65 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FluentValidationException = FluentValidation.ValidationException;
 
 namespace GymManagerBlazor.BUS.Services.Implement
 {
     public class TrainerService : ITrainerService
     {
         private readonly ITrainerRepository _trainerRepository;
-        private readonly TrainerValidator _trainerValidator;
+        private readonly IMapper _mapper;
+        private readonly IValidator<TrainerModel> _validator;
 
-        public TrainerService(ITrainerRepository trainerRepository)
+        public TrainerService(ITrainerRepository trainerRepository, IMapper mapper, IValidator<TrainerModel> validator)
         {
             _trainerRepository = trainerRepository;
-            _trainerValidator = new TrainerValidator();
+            _mapper = mapper;
+            _validator = validator;
         }
 
-        public async Task<List<TrainerViewModel>> GetAllTrainersAsync()
+        public async Task<List<TrainerModel>> GetAllTrainersAsync()
         {
-            return await _trainerRepository.GetAllAsync();
+            var trainerVMs = await _trainerRepository.GetAllAsync();
+            return _mapper.Map<List<TrainerModel>>(trainerVMs);
         }
 
-        public async Task<TrainerViewModel> GetTrainerByIdAsync(int id)
+        public async Task<TrainerModel> GetTrainerByIdAsync(int id)
         {
-            var trainerEntity = await _trainerRepository.GetByIdAsync(id);
-            if (trainerEntity == null)
+            var trainerVM = await _trainerRepository.GetByIdAsync(id);
+            if (trainerVM == null)
             {
-                throw new EntityNotFoundException("Trainer", id);
+                throw new Exception($"Không tìm thấy huấn luyện viên với ID = {id}");
             }
-            return trainerEntity;
+            return _mapper.Map<TrainerModel>(trainerVM);
         }
 
-        public async Task<bool> CreateTrainerAsync(TrainerViewModel trainerVM)
+        public async Task<bool> CreateTrainerAsync(TrainerModel trainer)
         {
-            var validationResult = _trainerValidator.Validate(trainerVM);
+            var validationResult = await _validator.ValidateAsync(trainer);
             if (!validationResult.IsValid)
             {
-                var errors = new Dictionary<string, string>();
-                foreach (var failure in validationResult.Errors)
-                {
-                    errors[failure.PropertyName] = failure.ErrorMessage;
-                }
-                throw new ValidationException(errors);
+                throw new FluentValidationException(validationResult.Errors);
             }
 
+            var trainerVM = _mapper.Map<TrainerViewModel>(trainer);
             return await _trainerRepository.CreateAsync(trainerVM);
         }
 
-        public async Task<bool> UpdateTrainerAsync(int id, TrainerViewModel trainerVM)
+        public async Task<bool> UpdateTrainerAsync(int id, TrainerModel trainer)
         {
-            var validationResult = _trainerValidator.Validate(trainerVM);
+            var validationResult = await _validator.ValidateAsync(trainer);
             if (!validationResult.IsValid)
             {
-                var errors = new Dictionary<string, string>();
-                foreach (var failure in validationResult.Errors)
-                {
-                    errors[failure.PropertyName] = failure.ErrorMessage;
-                }
-                throw new ValidationException(errors);
+                throw new FluentValidationException(validationResult.Errors);
             }
 
-            if (await _trainerRepository.GetByIdAsync(id) == null)
-            {
-                throw new EntityNotFoundException("Trainer", id);
-            }
-
+            var trainerVM = _mapper.Map<TrainerViewModel>(trainer);
             return await _trainerRepository.UpdateAsync(id, trainerVM);
         }
 
         public async Task<bool> DeleteTrainerAsync(int id)
         {
-            if (await _trainerRepository.GetByIdAsync(id) == null)
-            {
-                throw new EntityNotFoundException("Trainer", id);
-            }
-
             return await _trainerRepository.DeleteAsync(id);
         }
     }

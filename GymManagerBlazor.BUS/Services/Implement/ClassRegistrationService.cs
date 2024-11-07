@@ -1,4 +1,7 @@
-﻿using GymManagerBlazor.BUS.Exceptions;
+﻿using AutoMapper;
+using FluentValidation;
+using GymManagerBlazor.BUS.Exceptions;
+using GymManagerBlazor.BUS.Models;
 using GymManagerBlazor.BUS.Services.Interface;
 using GymManagerBlazor.BUS.Validators;
 using GymManagerBlazor.BUS.ViewModels;
@@ -8,79 +11,65 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FluentValidationException = FluentValidation.ValidationException;
 
 namespace GymManagerBlazor.BUS.Services.Implement
 {
     public class ClassRegistrationService : IClassRegistrationService
     {
         private readonly IClassRegistrationRepository _registrationRepository;
-        private readonly ClassRegistrationValidator _registrationValidator;
+        private readonly IMapper _mapper;
+        private readonly IValidator<ClassRegistrationModel> _validator;
 
-        public ClassRegistrationService(IClassRegistrationRepository registrationRepository)
+        public ClassRegistrationService(IClassRegistrationRepository registrationRepository, IMapper mapper, IValidator<ClassRegistrationModel> validator)
         {
             _registrationRepository = registrationRepository;
-            _registrationValidator = new ClassRegistrationValidator();
+            _mapper = mapper;
+            _validator = validator;
         }
 
-        public async Task<List<ClassRegistrationViewModel>> GetAllRegistrationsAsync()
+        public async Task<List<ClassRegistrationModel>> GetAllRegistrationsAsync()
         {
-            return await _registrationRepository.GetAllAsync();
+            var registrationVMs = await _registrationRepository.GetAllAsync();
+            return _mapper.Map<List<ClassRegistrationModel>>(registrationVMs);
         }
 
-        public async Task<ClassRegistrationViewModel> GetRegistrationByIdAsync(int id)
+        public async Task<ClassRegistrationModel> GetRegistrationByIdAsync(int id)
         {
-            var registrationEntity = await _registrationRepository.GetByIdAsync(id);
-            if (registrationEntity == null)
+            var registrationVM = await _registrationRepository.GetByIdAsync(id);
+            if (registrationVM == null)
             {
-                throw new EntityNotFoundException("Class Registration", id);
+                throw new Exception($"Không tìm thấy đăng ký với ID = {id}");
             }
-            return registrationEntity;
+            return _mapper.Map<ClassRegistrationModel>(registrationVM);
         }
 
-        public async Task<bool> CreateRegistrationAsync(ClassRegistrationViewModel registrationVM)
+        public async Task<bool> CreateRegistrationAsync(ClassRegistrationModel registration)
         {
-            var validationResult = _registrationValidator.Validate(registrationVM);
+            var validationResult = await _validator.ValidateAsync(registration);
             if (!validationResult.IsValid)
             {
-                var errors = new Dictionary<string, string>();
-                foreach (var failure in validationResult.Errors)
-                {
-                    errors[failure.PropertyName] = failure.ErrorMessage;
-                }
-                throw new ValidationException(errors);
+                throw new FluentValidationException(validationResult.Errors);
             }
 
+            var registrationVM = _mapper.Map<ClassRegistrationViewModel>(registration);
             return await _registrationRepository.CreateAsync(registrationVM);
         }
 
-        public async Task<bool> UpdateRegistrationAsync(int id, ClassRegistrationViewModel registrationVM)
+        public async Task<bool> UpdateRegistrationAsync(int id, ClassRegistrationModel registration)
         {
-            var validationResult = _registrationValidator.Validate(registrationVM);
+            var validationResult = await _validator.ValidateAsync(registration);
             if (!validationResult.IsValid)
             {
-                var errors = new Dictionary<string, string>();
-                foreach (var failure in validationResult.Errors)
-                {
-                    errors[failure.PropertyName] = failure.ErrorMessage;
-                }
-                throw new ValidationException(errors);
+                throw new FluentValidationException(validationResult.Errors);
             }
 
-            if (await _registrationRepository.GetByIdAsync(id) == null)
-            {
-                throw new EntityNotFoundException("Class Registration", id);
-            }
-
+            var registrationVM = _mapper.Map<ClassRegistrationViewModel>(registration);
             return await _registrationRepository.UpdateAsync(id, registrationVM);
         }
 
         public async Task<bool> DeleteRegistrationAsync(int id)
         {
-            if (await _registrationRepository.GetByIdAsync(id) == null)
-            {
-                throw new EntityNotFoundException("Class Registration", id);
-            }
-
             return await _registrationRepository.DeleteAsync(id);
         }
     }

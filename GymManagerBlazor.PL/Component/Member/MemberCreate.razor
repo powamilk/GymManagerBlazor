@@ -1,0 +1,51 @@
+﻿@page "/members/create"
+@using GymManagerBlazor.BUS.Models
+@using GymManagerBlazor.BUS.Services.Interface
+@inject IMemberService MemberService
+@inject NavigationManager Navigation
+
+<h3>Thêm Thành Viên Mới</h3>
+
+<EditForm Model="NewMember" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div>
+        <label>Tên:</label>
+        <InputText @bind-Value="NewMember.Name" />
+    </div>
+    <div>
+        <label>Email:</label>
+        <InputText @bind-Value="NewMember.Email" />
+    </div>
+    <div>
+        <label>Điện Thoại:</label>
+        <InputText @bind-Value="NewMember.Phone" />
+    </div>
+    <div>
+        <label>Loại Thẻ:</label>
+        <InputText @bind-Value="NewMember.MembershipType" />
+    </div>
+    <div>
+        <label>Ngày Tham Gia:</label>
+        <InputDate @bind-Value="NewMember.JoinDate" />
+    </div>
+
+    <button type="submit">Lưu</button>
+    <button @onclick="GoBack">Hủy</button>
+</EditForm>
+
+@code {
+    private MemberModel NewMember { get; set; } = new MemberModel();
+
+    private async Task HandleValidSubmit()
+    {
+        await MemberService.CreateMemberAsync(NewMember);
+        Navigation.NavigateTo("/members");
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/members");
+    }
+}

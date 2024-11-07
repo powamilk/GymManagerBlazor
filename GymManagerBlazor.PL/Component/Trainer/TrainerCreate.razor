@@ -1,0 +1,51 @@
+﻿@page "/trainers/create"
+@using GymManagerBlazor.BUS.Models
+@using GymManagerBlazor.BUS.Services.Interface
+@inject ITrainerService TrainerService
+@inject NavigationManager Navigation
+
+<h3>Thêm Huấn Luyện Viên Mới</h3>
+
+<EditForm Model="NewTrainer" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div>
+        <label>Tên:</label>
+        <InputText @bind-Value="NewTrainer.Name" />
+    </div>
+    <div>
+        <label>Chuyên Môn:</label>
+        <InputText @bind-Value="NewTrainer.Specialty" />
+    </div>
+    <div>
+        <label>Kinh Nghiệm (năm):</label>
+        <InputNumber @bind-Value="NewTrainer.ExperienceYears" />
+    </div>
+    <div>
+        <label>Email:</label>
+        <InputText @bind-Value="NewTrainer.Email" />
+    </div>
+    <div>
+        <label>Điện Thoại:</label>
+        <InputText @bind-Value="NewTrainer.Phone" />
+    </div>
+
+    <button type="submit">Lưu</button>
+    <button @onclick="GoBack">Hủy</button>
+</EditForm>
+
+@code {
+    private TrainerModel NewTrainer { get; set; } = new TrainerModel();
+
+    private async Task HandleValidSubmit()
+    {
+        await TrainerService.CreateTrainerAsync(NewTrainer);
+        Navigation.NavigateTo("/trainers");
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/trainers");
+    }
+}

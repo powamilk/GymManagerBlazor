@@ -12,7 +12,7 @@ namespace GymManagerBlazor.DAL.Repository.Implement
     public class ClassRegistrationRepository : IClassRegistrationRepository
     {
         private readonly ApiClient _apiClient;
-        private const string BaseUrl = "api/registrations";
+        private const string BaseUri = "api/registrations";
 
         public ClassRegistrationRepository(ApiClient apiClient)
         {
@@ -21,27 +21,27 @@ namespace GymManagerBlazor.DAL.Repository.Implement
 
         public async Task<List<ClassRegistrationViewModel>> GetAllAsync()
         {
-            return await _apiClient.GetAsync<List<ClassRegistrationViewModel>>(BaseUrl);
+            return await _apiClient.GetAsync<List<ClassRegistrationViewModel>>(BaseUri);
         }
 
         public async Task<ClassRegistrationViewModel> GetByIdAsync(int id)
         {
-            return await _apiClient.GetAsync<ClassRegistrationViewModel>($"{BaseUrl}/{id}");
+            return await _apiClient.GetAsync<ClassRegistrationViewModel>($"{BaseUri}/{id}");
         }
 
-        public async Task<bool> CreateAsync(ClassRegistrationViewModel registrationVM)
+        public async Task<bool> CreateAsync(ClassRegistrationViewModel registration)
         {
-            return await _apiClient.PostAsync(BaseUrl, registrationVM);
+            return await _apiClient.PostAsync(BaseUri, registration);
         }
 
-        public async Task<bool> UpdateAsync(int id, ClassRegistrationViewModel registrationVM)
+        public async Task<bool> UpdateAsync(int id, ClassRegistrationViewModel registration)
         {
-            return await _apiClient.PutAsync($"{BaseUrl}/{id}", registrationVM);
+            return await _apiClient.PutAsync($"{BaseUri}/{id}", registration);
         }
 
         public async Task<bool> DeleteAsync(int id)
         {
-            return await _apiClient.DeleteAsync($"{BaseUrl}/{id}");
+            return await _apiClient.DeleteAsync($"{BaseUri}/{id}");
         }
     }
 }

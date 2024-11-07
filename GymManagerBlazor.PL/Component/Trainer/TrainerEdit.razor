@@ -1,0 +1,64 @@
+﻿@page "/trainers/edit/{Id:int}"
+@using GymManagerBlazor.BUS.Models
+@using GymManagerBlazor.BUS.Services.Interface
+@inject ITrainerService TrainerService
+@inject NavigationManager Navigation
+
+<h3>Chỉnh Sửa Huấn Luyện Viên</h3>
+
+@if (TrainerToEdit != null)
+{
+    <EditForm Model="TrainerToEdit" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div>
+            <label>Tên:</label>
+            <InputText @bind-Value="TrainerToEdit.Name" />
+        </div>
+        <div>
+            <label>Chuyên Môn:</label>
+            <InputText @bind-Value="TrainerToEdit.Specialty" />
+        </div>
+        <div>
+            <label>Kinh Nghiệm (năm):</label>
+            <InputNumber @bind-Value="TrainerToEdit.ExperienceYears" />
+        </div>
+        <div>
+            <label>Email:</label>
+            <InputText @bind-Value="TrainerToEdit.Email" />
+        </div>
+        <div>
+            <label>Điện Thoại:</label>
+            <InputText @bind-Value="TrainerToEdit.Phone" />
+        </div>
+
+        <button type="submit">Cập Nhật</button>
+        <button @onclick="GoBack">Hủy</button>
+    </EditForm>
+}
+else
+{
+    <p>Đang tải dữ liệu...</p>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private TrainerModel TrainerToEdit { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        TrainerToEdit = await TrainerService.GetTrainerByIdAsync(Id);
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        await TrainerService.UpdateTrainerAsync(Id, TrainerToEdit);
+        Navigation.NavigateTo("/trainers");
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/trainers");
+    }
+}

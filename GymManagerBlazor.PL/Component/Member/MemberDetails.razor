@@ -1,0 +1,38 @@
+﻿@page "/members/details/{Id:int}"
+@using GymManagerBlazor.BUS.Models
+@using GymManagerBlazor.BUS.Services.Interface
+@inject IMemberService MemberService
+@inject NavigationManager Navigation
+
+<h3>Chi Tiết Thành Viên</h3>
+
+@if (Member != null)
+{
+    <div>
+        <p><strong>Tên:</strong> @Member.Name</p>
+        <p><strong>Email:</strong> @Member.Email</p>
+        <p><strong>Điện Thoại:</strong> @Member.Phone</p>
+        <p><strong>Loại Thẻ:</strong> @Member.MembershipType</p>
+        <p><strong>Ngày Tham Gia:</strong> @Member.JoinDate.ToString("dd/MM/yyyy")</p>
+        <button @onclick="GoBack">Quay Lại</button>
+    </div>
+}
+else
+{
+    <p>Đang tải dữ liệu...</p>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private MemberModel Member { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Member = await MemberService.GetMemberByIdAsync(Id);
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/members");
+    }
+}

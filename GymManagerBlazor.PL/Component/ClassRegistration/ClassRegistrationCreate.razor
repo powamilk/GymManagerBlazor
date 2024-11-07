@@ -1,0 +1,39 @@
+﻿@page "/registrations/create"
+@using GymManagerBlazor.BUS.Models
+@using GymManagerBlazor.BUS.Services.Interface
+@inject IClassRegistrationService ClassRegistrationService
+@inject NavigationManager Navigation
+
+<h3>Thêm Đăng Ký Mới</h3>
+
+<EditForm Model="NewRegistration" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div>
+        <label>ID Thành Viên:</label>
+        <InputNumber @bind-Value="NewRegistration.MemberId" />
+    </div>
+    <div>
+        <label>ID Lớp Học:</label>
+        <InputNumber @bind-Value="NewRegistration.ClassId" />
+    </div>
+
+    <button type="submit">Lưu</button>
+    <button @onclick="GoBack">Hủy</button>
+</EditForm>
+
+@code {
+    private ClassRegistrationModel NewRegistration { get; set; } = new ClassRegistrationModel();
+
+    private async Task HandleValidSubmit()
+    {
+        await ClassRegistrationService.CreateRegistrationAsync(NewRegistration);
+        Navigation.NavigateTo("/registrations");
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/registrations");
+    }
+}

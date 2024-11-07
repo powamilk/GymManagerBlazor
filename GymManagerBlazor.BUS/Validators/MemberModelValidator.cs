@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using GymManagerBlazor.BUS.ViewModels;
+using GymManagerBlazor.BUS.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 
 namespace GymManagerBlazor.BUS.Validators
 {
-    public class MemberValidator : AbstractValidator<MemberViewModel>
+    public class MemberModelValidator : AbstractValidator<MemberModel>
     {
-        public MemberValidator()
+        public MemberModelValidator()
         {
             RuleFor(x => x.Name)
-                .NotEmpty().WithMessage("Tên không được để trống")
-                .MaximumLength(100).WithMessage("Tên tối đa 100 ký tự");
+                .NotEmpty().WithMessage("Họ tên không được để trống")
+                .MaximumLength(100).WithMessage("Họ tên tối đa 100 ký tự");
 
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("Email không được để trống")
@@ -28,7 +28,10 @@ namespace GymManagerBlazor.BUS.Validators
             RuleFor(x => x.MembershipType)
                 .NotEmpty().WithMessage("Loại thẻ thành viên không được để trống")
                 .Must(type => type == "Basic" || type == "Premium")
-                .WithMessage("Loại thẻ thành viên phải là 'Basic' hoặc 'Premium'");
+                .WithMessage("Loại thẻ phải là 'Basic' hoặc 'Premium'");
+
+            RuleFor(x => x.JoinDate)
+                .NotEmpty().WithMessage("Ngày tham gia không được để trống");
         }
     }
 }

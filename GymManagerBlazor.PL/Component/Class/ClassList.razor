@@ -1,0 +1,72 @@
+﻿@page "/classes"
+@using GymManagerBlazor.BUS.Models
+@using GymManagerBlazor.BUS.Services.Interface
+@inject IClassService ClassService
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<h3>Danh sách Lớp Học</h3>
+
+<button @onclick="CreateClass">Thêm Lớp Học Mới</button>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Tên Lớp</th>
+            <th>Huấn Luyện Viên</th>
+            <th>Lịch Học</th>
+            <th>Số Thành Viên Tối Đa</th>
+            <th>Thao Tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var classModel in Classes)
+        {
+            <tr>
+                <td>@classModel.Name</td>
+                <td>@classModel.TrainerName</td>
+                <td>@classModel.Schedule</td>
+                <td>@classModel.MaxMembers</td>
+                <td>
+                    <button @onclick="() => ViewDetails(classModel.Id)">Chi Tiết</button>
+                    <button @onclick="() => EditClass(classModel.Id)">Chỉnh Sửa</button>
+                    <button @onclick="() => DeleteClass(classModel.Id)">Xóa</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<ClassModel> Classes { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Classes = await ClassService.GetAllClassesAsync();
+    }
+
+    private void CreateClass()
+    {
+        Navigation.NavigateTo("/classes/create");
+    }
+
+    private void ViewDetails(int id)
+    {
+        Navigation.NavigateTo($"/classes/details/{id}");
+    }
+
+    private void EditClass(int id)
+    {
+        Navigation.NavigateTo($"/classes/edit/{id}");
+    }
+
+    private async Task DeleteClass(int id)
+    {
+        var confirmed = await JS.InvokeAsync<bool>("confirm", "Bạn có chắc muốn xóa lớp học này?");
+        if (confirmed)
+        {
+            await ClassService.DeleteClassAsync(id);
+            Classes = await ClassService.GetAllClassesAsync(); // Cập nhật lại danh sách sau khi xóa
+        }
+    }
+}

@@ -1,0 +1,74 @@
+﻿@page "/members"
+@using GymManagerBlazor.BUS.Models
+@using GymManagerBlazor.BUS.Services.Interface
+@inject IMemberService MemberService
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<h3>Danh sách Thành Viên</h3>
+
+<button @onclick="CreateMember">Thêm Thành Viên Mới</button>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Tên</th>
+            <th>Email</th>
+            <th>Điện Thoại</th>
+            <th>Loại Thẻ</th>
+            <th>Ngày Tham Gia</th>
+            <th>Thao Tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var member in Members)
+        {
+            <tr>
+                <td>@member.Name</td>
+                <td>@member.Email</td>
+                <td>@member.Phone</td>
+                <td>@member.MembershipType</td>
+                <td>@member.JoinDate.ToString("dd/MM/yyyy")</td>
+                <td>
+                    <button @onclick="() => ViewDetails(member.Id)">Chi Tiết</button>
+                    <button @onclick="() => EditMember(member.Id)">Chỉnh Sửa</button>
+                    <button @onclick="() => DeleteMember(member.Id)">Xóa</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<MemberModel> Members { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Members = await MemberService.GetAllMembersAsync();
+    }
+
+    private void CreateMember()
+    {
+        Navigation.NavigateTo("/members/create");
+    }
+
+    private void ViewDetails(int id)
+    {
+        Navigation.NavigateTo($"/members/details/{id}");
+    }
+
+    private void EditMember(int id)
+    {
+        Navigation.NavigateTo($"/members/edit/{id}");
+    }
+
+    private async Task DeleteMember(int id)
+    {
+        var confirmed = await JS.InvokeAsync<bool>("confirm", "Bạn có chắc muốn xóa thành viên này?");
+        if (confirmed)
+        {
+            await MemberService.DeleteMemberAsync(id);
+            Members = await MemberService.GetAllMembersAsync(); // Cập nhật lại danh sách sau khi xóa
+        }
+    }
+}

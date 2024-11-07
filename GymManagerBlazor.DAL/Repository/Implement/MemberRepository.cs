@@ -12,7 +12,7 @@ namespace GymManagerBlazor.DAL.Repository.Implement
     public class MemberRepository : IMemberRepository
     {
         private readonly ApiClient _apiClient;
-        private const string BaseUrl = "api/members";
+        private const string BaseUri = "api/members";
 
         public MemberRepository(ApiClient apiClient)
         {
@@ -21,27 +21,27 @@ namespace GymManagerBlazor.DAL.Repository.Implement
 
         public async Task<List<MemberViewModel>> GetAllAsync()
         {
-            return await _apiClient.GetAsync<List<MemberViewModel>>(BaseUrl);
+            return await _apiClient.GetAsync<List<MemberViewModel>>(BaseUri);
         }
 
         public async Task<MemberViewModel> GetByIdAsync(int id)
         {
-            return await _apiClient.GetAsync<MemberViewModel>($"{BaseUrl}/{id}");
+            return await _apiClient.GetAsync<MemberViewModel>($"{BaseUri}/{id}");
         }
 
-        public async Task<bool> CreateAsync(MemberViewModel memberVM)
+        public async Task<bool> CreateAsync(MemberViewModel member)
         {
-            return await _apiClient.PostAsync(BaseUrl, memberVM);
+            return await _apiClient.PostAsync(BaseUri, member);
         }
 
-        public async Task<bool> UpdateAsync(int id, MemberViewModel memberVM)
+        public async Task<bool> UpdateAsync(int id, MemberViewModel member)
         {
-            return await _apiClient.PutAsync($"{BaseUrl}/{id}", memberVM);
+            return await _apiClient.PutAsync($"{BaseUri}/{id}", member);
         }
 
         public async Task<bool> DeleteAsync(int id)
         {
-            return await _apiClient.DeleteAsync($"{BaseUrl}/{id}");
+            return await _apiClient.DeleteAsync($"{BaseUri}/{id}");
         }
     }
 }

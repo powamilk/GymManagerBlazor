@@ -1,0 +1,37 @@
+﻿@page "/classes/details/{Id:int}"
+@using GymManagerBlazor.BUS.Models
+@using GymManagerBlazor.BUS.Services.Interface
+@inject IClassService ClassService
+@inject NavigationManager Navigation
+
+<h3>Chi Tiết Lớp Học</h3>
+
+@if (Class != null)
+{
+    <div>
+        <p><strong>Tên Lớp:</strong> @Class.Name</p>
+        <p><strong>Huấn Luyện Viên:</strong> @Class.TrainerName</p>
+        <p><strong>Lịch Học:</strong> @Class.Schedule</p>
+        <p><strong>Số Thành Viên Tối Đa:</strong> @Class.MaxMembers</p>
+        <button @onclick="GoBack">Quay Lại</button>
+    </div>
+}
+else
+{
+    <p>Đang tải dữ liệu...</p>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private ClassModel Class { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Class = await ClassService.GetClassByIdAsync(Id);
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/classes");
+    }
+}

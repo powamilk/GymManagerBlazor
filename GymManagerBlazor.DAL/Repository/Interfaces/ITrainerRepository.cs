@@ -11,8 +11,8 @@ namespace GymManagerBlazor.DAL.Repository.Interfaces
     {
         Task<List<TrainerViewModel>> GetAllAsync();
         Task<TrainerViewModel> GetByIdAsync(int id);
-        Task<bool> CreateAsync(TrainerViewModel trainerVM);
-        Task<bool> UpdateAsync(int id, TrainerViewModel trainerVM);
+        Task<bool> CreateAsync(TrainerViewModel trainer);
+        Task<bool> UpdateAsync(int id, TrainerViewModel trainer);
         Task<bool> DeleteAsync(int id);
     }
 }

@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using GymManagerBlazor.BUS.ViewModels;
+using GymManagerBlazor.BUS.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace GymManagerBlazor.BUS.Validators
 {
-    public class TrainerValidator : AbstractValidator<TrainerViewModel>
+    public class TrainerModelValidator : AbstractValidator<TrainerModel>
     {
-        public TrainerValidator()
+        public TrainerModelValidator()
         {
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("Tên không được để trống")
@@ -26,6 +26,11 @@ namespace GymManagerBlazor.BUS.Validators
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("Email không được để trống")
                 .EmailAddress().WithMessage("Email không hợp lệ");
+
+            RuleFor(x => x.Phone)
+                .NotEmpty().WithMessage("Số điện thoại không được để trống")
+                .Matches(@"^\d+$").WithMessage("Số điện thoại chỉ chứa số")
+                .MaximumLength(15).WithMessage("Số điện thoại tối đa 15 ký tự");
         }
     }
 }

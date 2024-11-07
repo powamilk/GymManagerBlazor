@@ -9,79 +9,68 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
+using FluentValidation;
+using GymManagerBlazor.BUS.Models;
+using FluentValidationException = FluentValidation.ValidationException;
 
 namespace GymManagerBlazor.BUS.Services.Implement
 {
     public class ClassService : IClassService
     {
         private readonly IClassRepository _classRepository;
-        private readonly ClassValidator _classValidator;
+        private readonly IMapper _mapper;
+        private readonly IValidator<ClassModel> _validator;
 
-        public ClassService(IClassRepository classRepository)
+        public ClassService(IClassRepository classRepository, IMapper mapper, IValidator<ClassModel> validator)
         {
             _classRepository = classRepository;
-            _classValidator = new ClassValidator();
+            _mapper = mapper;
+            _validator = validator;
         }
 
-        public async Task<List<ClassViewModel>> GetAllClassesAsync()
+        public async Task<List<ClassModel>> GetAllClassesAsync()
         {
-            return await _classRepository.GetAllAsync();
+            var classVMs = await _classRepository.GetAllAsync();
+            return _mapper.Map<List<ClassModel>>(classVMs);
         }
 
-        public async Task<ClassViewModel> GetClassByIdAsync(int id)
+        public async Task<ClassModel> GetClassByIdAsync(int id)
         {
-            var classEntity = await _classRepository.GetByIdAsync(id);
-            if (classEntity == null)
+            var classVM = await _classRepository.GetByIdAsync(id);
+            if (classVM == null)
             {
-                throw new EntityNotFoundException("Class", id);
+                throw new Exception($"Không tìm thấy lớp học với ID = {id}");
             }
-            return classEntity;
+            return _mapper.Map<ClassModel>(classVM);
         }
 
-        public async Task<bool> CreateClassAsync(ClassViewModel classVM)
+        public async Task<bool> CreateClassAsync(ClassModel classModel)
         {
-            var validationResult = _classValidator.Validate(classVM);
+            var validationResult = await _validator.ValidateAsync(classModel);
             if (!validationResult.IsValid)
             {
-                var errors = new Dictionary<string, string>();
-                foreach (var failure in validationResult.Errors)
-                {
-                    errors[failure.PropertyName] = failure.ErrorMessage;
-                }
-                throw new ValidationException(errors);
+                throw new FluentValidationException(validationResult.Errors);
             }
 
+            var classVM = _mapper.Map<ClassViewModel>(classModel);
             return await _classRepository.CreateAsync(classVM);
         }
 
-        public async Task<bool> UpdateClassAsync(int id, ClassViewModel classVM)
+        public async Task<bool> UpdateClassAsync(int id, ClassModel classModel)
         {
-            var validationResult = _classValidator.Validate(classVM);
+            var validationResult = await _validator.ValidateAsync(classModel);
             if (!validationResult.IsValid)
             {
-                var errors = new Dictionary<string, string>();
-                foreach (var failure in validationResult.Errors)
-                {
-                    errors[failure.PropertyName] = failure.ErrorMessage;
-                }
-                throw new ValidationException(errors);
+                throw new FluentValidationException(validationResult.Errors);
             }
 
-            if (await _classRepository.GetByIdAsync(id) == null)
-            {
-                throw new EntityNotFoundException("Class", id);
-            }
-
+            var classVM = _mapper.Map<ClassViewModel>(classModel);
             return await _classRepository.UpdateAsync(id, classVM);
         }
 
         public async Task<bool> DeleteClassAsync(int id)
         {
-            if (await _classRepository.GetByIdAsync(id) == null)
-            {
-                throw new EntityNotFoundException("Class", id);
-            }
-
             return await _classRepository.DeleteAsync(id);
         }
     }

@@ -1,4 +1,5 @@
-﻿using GymManagerBlazor.BUS.ViewModels;
+﻿using GymManagerBlazor.BUS.Models;
+using GymManagerBlazor.BUS.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +10,10 @@ namespace GymManagerBlazor.BUS.Services.Interface
 {
     public interface ITrainerService
     {
-        Task<List<TrainerViewModel>> GetAllTrainersAsync();
-        Task<TrainerViewModel> GetTrainerByIdAsync(int id);
-        Task<bool> CreateTrainerAsync(TrainerViewModel trainerVM);
-        Task<bool> UpdateTrainerAsync(int id, TrainerViewModel trainerVM);
+        Task<List<TrainerModel>> GetAllTrainersAsync();
+        Task<TrainerModel> GetTrainerByIdAsync(int id);
+        Task<bool> CreateTrainerAsync(TrainerModel trainer);
+        Task<bool> UpdateTrainerAsync(int id, TrainerModel trainer);
         Task<bool> DeleteTrainerAsync(int id);
     }
 }

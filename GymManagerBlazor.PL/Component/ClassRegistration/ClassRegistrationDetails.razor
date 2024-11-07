@@ -1,0 +1,35 @@
+﻿@page "/registrations/details/{Id:int}"
+@using GymManagerBlazor.BUS.Models
+@using GymManagerBlazor.BUS.Services.Interface
+@inject IClassRegistrationService ClassRegistrationService
+@inject NavigationManager Navigation
+
+<h3>Chi Tiết Đăng Ký</h3>
+
+@if (Registration != null)
+{
+    <div>
+        <p><strong>ID Thành Viên:</strong> @Registration.MemberId</p>
+        <p><strong>ID Lớp Học:</strong> @Registration.ClassId</p>
+        <button @onclick="GoBack">Quay Lại</button>
+    </div>
+}
+else
+{
+    <p>Đang tải dữ liệu...</p>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private ClassRegistrationModel Registration { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Registration = await ClassRegistrationService.GetRegistrationByIdAsync(Id);
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/registrations");
+    }
+}

@@ -1,0 +1,38 @@
+﻿@page "/trainers/details/{Id:int}"
+@using GymManagerBlazor.BUS.Models
+@using GymManagerBlazor.BUS.Services.Interface
+@inject ITrainerService TrainerService
+@inject NavigationManager Navigation
+
+<h3>Chi Tiết Huấn Luyện Viên</h3>
+
+@if (Trainer != null)
+{
+    <div>
+        <p><strong>Tên:</strong> @Trainer.Name</p>
+        <p><strong>Chuyên Môn:</strong> @Trainer.Specialty</p>
+        <p><strong>Kinh Nghiệm (năm):</strong> @Trainer.ExperienceYears</p>
+        <p><strong>Email:</strong> @Trainer.Email</p>
+        <p><strong>Điện Thoại:</strong> @Trainer.Phone</p>
+        <button @onclick="GoBack">Quay Lại</button>
+    </div>
+}
+else
+{
+    <p>Đang tải dữ liệu...</p>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private TrainerModel Trainer { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Trainer = await TrainerService.GetTrainerByIdAsync(Id);
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/trainers");
+    }
+}

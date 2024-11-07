@@ -1,0 +1,52 @@
+﻿@page "/registrations/edit/{Id:int}"
+@using GymManagerBlazor.BUS.Models
+@using GymManagerBlazor.BUS.Services.Interface
+@inject IClassRegistrationService ClassRegistrationService
+@inject NavigationManager Navigation
+
+<h3>Chỉnh Sửa Đăng Ký</h3>
+
+@if (RegistrationToEdit != null)
+{
+    <EditForm Model="RegistrationToEdit" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div>
+            <label>ID Thành Viên:</label>
+            <InputNumber @bind-Value="RegistrationToEdit.MemberId" />
+        </div>
+        <div>
+            <label>ID Lớp Học:</label>
+            <InputNumber @bind-Value="RegistrationToEdit.ClassId" />
+        </div>
+
+        <button type="submit">Cập Nhật</button>
+        <button @onclick="GoBack">Hủy</button>
+    </EditForm>
+}
+else
+{
+    <p>Đang tải dữ liệu...</p>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private ClassRegistrationModel RegistrationToEdit { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        RegistrationToEdit = await ClassRegistrationService.GetRegistrationByIdAsync(Id);
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        await ClassRegistrationService.UpdateRegistrationAsync(Id, RegistrationToEdit);
+        Navigation.NavigateTo("/registrations");
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/registrations");
+    }
+}

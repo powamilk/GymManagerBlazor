@@ -1,0 +1,105 @@
+﻿@page "/trainers"
+@using GymManagerBlazor.BUS.Models
+@using GymManagerBlazor.BUS.Services.Interface
+@inject ITrainerService TrainerService
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<h3>Danh sách Huấn Luyện Viên</h3>
+
+<button @onclick="CreateTrainer">Thêm Huấn Luyện Viên Mới</button>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Tên</th>
+            <th>Chuyên Môn</th>
+            <th>Kinh Nghiệm</th>
+            <th>Email</th>
+            <th>Điện Thoại</th>
+            <th>Thao Tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var trainer in Trainers)
+
+        {
+            <tr>
+                <td>@trainer.Name</td>
+                <td>@trainer.Specialty</td>
+                <td>@trainer.ExperienceYears</td>
+                <td>@trainer.Email</td>
+                <td>@trainer.Phone</td>
+                <td>
+                    <button @onclick="() => ViewDetails(trainer.Id)">Chi Tiết</button>
+                    <button @onclick="() => EditTrainer(trainer.Id)">Chỉnh Sửa</button>
+                    <button @onclick="() => DeleteTrainer(trainer.Id)">Xóa</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<TrainerModel> Trainers { get; set; } = new();
+
+
+
+    protected override async Task OnInitializedAsync()
+
+    {
+
+        Trainers = await TrainerService.GetAllTrainersAsync();
+
+    }
+
+
+
+    private void CreateTrainer()
+
+    {
+
+        Navigation.NavigateTo("/trainers/create");
+
+    }
+
+
+
+    private void ViewDetails(int id)
+
+    {
+
+        Navigation.NavigateTo($"/trainers/details/{id}");
+
+    }
+
+
+
+    private void EditTrainer(int id)
+
+    {
+
+        Navigation.NavigateTo($"/trainers/edit/{id}");
+
+    }
+
+
+
+    private async Task DeleteTrainer(int id)
+
+    {
+
+        var confirmed = await JS.InvokeAsync<bool>("confirm", "Bạn có chắc muốn xóa huấn luyện viên này?");
+
+        if (confirmed)
+
+        {
+
+            await TrainerService.DeleteTrainerAsync(id);
+
+            Trainers = await TrainerService.GetAllTrainersAsync(); // Cập nhật lại danh sách sau khi xóa
+
+        }
+
+    }
+}

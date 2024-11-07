@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GymManagerBlazor.BUS", "GymManagerBlazor.BUS\GymManagerBlazor.BUS.csproj", "{BC8DACBD-B0BA-4F47-A771-98F9D2B21313}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GymManagerBlazor.BUS", "GymManagerBlazor.BUS\GymManagerBlazor.BUS.csproj", "{BC8DACBD-B0BA-4F47-A771-98F9D2B21313}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GymManagerBlazor.PL", "GymManagerBlazor.PL\GymManagerBlazor.PL.csproj", "{68F4B675-9960-4EF9-A2CB-1DD3CE9BB87F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GymManagerBlazor.PL", "GymManagerBlazor.PL\GymManagerBlazor.PL.csproj", "{68F4B675-9960-4EF9-A2CB-1DD3CE9BB87F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GymManagerBlazor.DAL", "GymManagerBlazor.DAL\GymManagerBlazor.DAL.csproj", "{ED0EAE6D-B3A6-4C6D-964E-163AF19565B3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GymManagerBlazor.DAL", "GymManagerBlazor.DAL\GymManagerBlazor.DAL.csproj", "{ED0EAE6D-B3A6-4C6D-964E-163AF19565B3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,3 +1,4 @@
+using GymManagerBlazor.BUS.Mapper;
 using GymManagerBlazor.BUS.Services.Implement;
 using GymManagerBlazor.BUS.Services.Interface;
 using GymManagerBlazor.DAL.DataAccess;
@@ -15,7 +16,6 @@ builder.Services.AddHttpClient<ApiClient>(client =>
 {
     client.BaseAddress = new Uri("https://localhost:7026"); 
 });
-
 builder.Services.AddScoped<IClassRepository, ClassRepository>();
 builder.Services.AddScoped<IMemberRepository, MemberRepository>();
 builder.Services.AddScoped<ITrainerRepository, TrainerRepository>();

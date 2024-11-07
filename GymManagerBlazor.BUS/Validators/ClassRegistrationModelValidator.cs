@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using GymManagerBlazor.BUS.ViewModels;
+using GymManagerBlazor.BUS.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace GymManagerBlazor.BUS.Validators
 {
-    public class ClassRegistrationValidator : AbstractValidator<ClassRegistrationViewModel>
+    public class ClassRegistrationModelValidator : AbstractValidator<ClassRegistrationModel>
     {
-        public ClassRegistrationValidator()
+        public ClassRegistrationModelValidator()
         {
             RuleFor(x => x.MemberId)
                 .GreaterThan(0).WithMessage("Thành viên không hợp lệ");

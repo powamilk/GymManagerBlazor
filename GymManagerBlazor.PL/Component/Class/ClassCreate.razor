@@ -1,0 +1,47 @@
+﻿@page "/classes/create"
+@using GymManagerBlazor.BUS.Models
+@using GymManagerBlazor.BUS.Services.Interface
+@inject IClassService ClassService
+@inject NavigationManager Navigation
+
+<h3>Thêm Lớp Học Mới</h3>
+
+<EditForm Model="NewClass" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div>
+        <label>Tên Lớp:</label>
+        <InputText @bind-Value="NewClass.Name" />
+    </div>
+    <div>
+        <label>Huấn Luyện Viên:</label>
+        <InputNumber @bind-Value="NewClass.TrainerId" />
+    </div>
+    <div>
+        <label>Lịch Học:</label>
+        <InputText @bind-Value="NewClass.Schedule" />
+    </div>
+    <div>
+        <label>Số Thành Viên Tối Đa:</label>
+        <InputNumber @bind-Value="NewClass.MaxMembers" />
+    </div>
+
+    <button type="submit">Lưu</button>
+    <button @onclick="GoBack">Hủy</button>
+</EditForm>
+
+@code {
+    private ClassModel NewClass { get; set; } = new ClassModel();
+
+    private async Task HandleValidSubmit()
+    {
+        await ClassService.CreateClassAsync(NewClass);
+        Navigation.NavigateTo("/classes");
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/classes");
+    }
+}
