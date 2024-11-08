@@ -22,7 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\GymManager.Share\GymManager.Share.csproj" />
     <ProjectReference Include="..\GymManagerBlazor.DAL\GymManagerBlazor.DAL.csproj" />
   </ItemGroup>
 

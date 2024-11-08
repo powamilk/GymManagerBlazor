@@ -1,0 +1,69 @@
+﻿@using AutoMapper
+@using GymManagerBlazor.BUS.Models
+@using GymManagerBlazor.BUS.Services.Interface
+@using MudBlazor
+@using GymManagerBlazor.BUS.ViewModels
+@inject ISnackbar Snackbar
+@inject IMemberService MemberService
+@inject IDialogService DialogService
+@inject IMapper Mapper
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="form" Model="member" Valid="isFormValid">
+            <MudTextField Label="Tên" @bind-Value="member.Name" Required="true" />
+            <MudTextField Label="Email" @bind-Value="member.Email" Required="true" />
+            <MudTextField Label="Số điện thoại" @bind-Value="member.Phone" Required="true" />
+            <MudSelect Label="Loại thẻ" @bind-Value="member.MembershipType" Required="true">
+                <MudSelectItem Value="Basic">Basic</MudSelectItem>
+                <MudSelectItem Value="Premium">Premium</MudSelectItem>
+            </MudSelect>
+            <MudDatePicker Label="Ngày tham gia" @bind-Date="member.JoinDate" Required="true" />
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Save" Disabled="!isFormValid" Color="Color.Primary">Lưu</MudButton>
+        <MudButton OnClick="Cancel">Hủy</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [Parameter] public MemberViewModel Member { get; set; }
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    private MudForm form;
+    private MemberViewModel member;
+    private bool isFormValid;
+
+    protected override void OnInitialized()
+    {
+        member = Member ?? new MemberViewModel();
+    }
+
+    private async Task Save()
+    {
+        await form.Validate();
+        if (form.IsValid)
+        {
+            var memberModel = Mapper.Map<MemberModel>(member);
+
+            if (member.Id == 0)
+            {
+                await MemberService.CreateMemberAsync(memberModel);
+                Snackbar.Add("Đã thêm thành viên mới", Severity.Success);
+            }
+            else
+            {
+                await MemberService.UpdateMemberAsync(member.Id, memberModel);
+                Snackbar.Add("Đã cập nhật thông tin thành viên", Severity.Success);
+            }
+
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+}
