@@ -1,0 +1,67 @@
+﻿@using GymManagerBlazor.BUS.Models
+@using GymManagerBlazor.BUS.Services.Interface
+@using MudBlazor
+@inject ISnackbar Snackbar
+@inject IClassRegistrationService ClassRegistrationService
+@inject IDialogService DialogService
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="form" Model="classRegistrationModel" Valid="isFormValid">
+            <MudTextField Label="Học Viên" @bind-Value="classRegistrationModel.MemberName" Required="true" />
+            <MudTextField Label="Lớp Học" @bind-Value="classRegistrationModel.ClassName" Required="true" />
+            <MudNumericField Label="ID Học Viên" @bind-Value="classRegistrationModel.MemberId" Required="true" />
+            <MudNumericField Label="ID Lớp Học" @bind-Value="classRegistrationModel.ClassId" Required="true" />
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Save" Disabled="!isFormValid" Color="Color.Primary">Lưu</MudButton>
+        <MudButton OnClick="Cancel">Hủy</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [Parameter] public ClassRegistrationModel ClassRegistration { get; set; }
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    private MudForm form;
+    private ClassRegistrationModel classRegistrationModel;
+    private bool isFormValid;
+
+    protected override void OnInitialized()
+    {
+        classRegistrationModel = ClassRegistration != null ? new ClassRegistrationModel
+        {
+            Id = ClassRegistration.Id,
+            MemberId = ClassRegistration.MemberId,
+            ClassId = ClassRegistration.ClassId,
+            MemberName = ClassRegistration.MemberName,
+            ClassName = ClassRegistration.ClassName
+        } : new ClassRegistrationModel();
+    }
+
+    private async Task Save()
+    {
+        await form.Validate();
+        if (form.IsValid)
+        {
+            if (classRegistrationModel.Id == 0)
+            {
+                await ClassRegistrationService.CreateRegistrationAsync(classRegistrationModel);
+                Snackbar.Add("Đã thêm đăng ký mới", Severity.Success);
+            }
+            else
+            {
+                await ClassRegistrationService.UpdateRegistrationAsync(classRegistrationModel.Id, classRegistrationModel);
+                Snackbar.Add("Đã cập nhật đăng ký", Severity.Success);
+            }
+
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+}

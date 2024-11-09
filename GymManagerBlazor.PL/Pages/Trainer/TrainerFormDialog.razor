@@ -1,0 +1,69 @@
+﻿@using GymManagerBlazor.BUS.Models
+@using GymManagerBlazor.BUS.Services.Interface
+@using MudBlazor
+@inject ISnackbar Snackbar
+@inject ITrainerService TrainerService
+@inject IDialogService DialogService
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="form" Model="trainerModel" Valid="isFormValid">
+            <MudTextField Label="Tên" @bind-Value="trainerModel.Name" Required="true" />
+            <MudTextField Label="Chuyên Môn" @bind-Value="trainerModel.Specialty" Required="true" />
+            <MudNumericField Label="Năm Kinh Nghiệm" @bind-Value="trainerModel.ExperienceYears" Required="true" />
+            <MudTextField Label="Email" @bind-Value="trainerModel.Email" Required="true" />
+            <MudTextField Label="Số Điện Thoại" @bind-Value="trainerModel.Phone" Required="true" />
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Save" Disabled="!isFormValid" Color="Color.Primary">Lưu</MudButton>
+        <MudButton OnClick="Cancel">Hủy</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [Parameter] public TrainerModel Trainer { get; set; }
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    private MudForm form;
+    private TrainerModel trainerModel;
+    private bool isFormValid;
+
+    protected override void OnInitialized()
+    {
+        trainerModel = Trainer != null ? new TrainerModel
+        {
+            Id = Trainer.Id,
+            Name = Trainer.Name,
+            Specialty = Trainer.Specialty,
+            ExperienceYears = Trainer.ExperienceYears,
+            Email = Trainer.Email,
+            Phone = Trainer.Phone
+        } : new TrainerModel();
+    }
+
+    private async Task Save()
+    {
+        await form.Validate();
+        if (form.IsValid)
+        {
+            if (trainerModel.Id == 0)
+            {
+                await TrainerService.CreateTrainerAsync(trainerModel);
+                Snackbar.Add("Đã thêm huấn luyện viên mới", Severity.Success);
+            }
+            else
+            {
+                await TrainerService.UpdateTrainerAsync(trainerModel.Id, trainerModel);
+                Snackbar.Add("Đã cập nhật huấn luyện viên", Severity.Success);
+            }
+
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+}

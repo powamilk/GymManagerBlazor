@@ -14,9 +14,9 @@
             <MudTextField Label="Tên" @bind-Value="member.Name" Required="true" />
             <MudTextField Label="Email" @bind-Value="member.Email" Required="true" />
             <MudTextField Label="Số điện thoại" @bind-Value="member.Phone" Required="true" />
-            <MudSelect Label="Loại thẻ" @bind-Value="member.MembershipType" Required="true">
-                <MudSelectItem Value="Basic">Basic</MudSelectItem>
-                <MudSelectItem Value="Premium">Premium</MudSelectItem>
+            <MudSelect T="string" Label="Loại thẻ" @bind-Value="member.MembershipType" Required="true">
+                <MudSelectItem Value="MembershipTypes.Basic">Basic</MudSelectItem>
+                <MudSelectItem Value="MembershipTypes.Premium">Premium</MudSelectItem>
             </MudSelect>
             <MudDatePicker Label="Ngày tham gia" @bind-Date="member.JoinDate" Required="true" />
         </MudForm>

@@ -1,0 +1,74 @@
+﻿@using GymManagerBlazor.BUS.Models
+@using GymManagerBlazor.BUS.Services.Interface
+@using MudBlazor
+@inject ISnackbar Snackbar
+@inject IClassService ClassService
+@inject IDialogService DialogService
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="form" Model="classModel" Valid="isFormValid">
+            <MudTextField Label="Tên Lớp" @bind-Value="classModel.Name" Required="true" />
+            <MudTextField Label="Huấn Luyện Viên" @bind-Value="classModel.TrainerName" Required="true" />
+            <MudNumericField Label="ID Huấn Luyện Viên" @bind-Value="classModel.TrainerId" Required="true" />
+            <MudTextField Label="Lịch học" @bind-Value="classModel.Schedule" Required="true" />
+            <MudNumericField Label="Số học viên tối đa" @bind-Value="classModel.MaxMembers" Required="true" />
+            <MudNumericField Label="Số học viên hiện tại" @bind-Value="classModel.CurrentMembers" Disabled="true" />
+            <MudTextField Label="Mô tả" @bind-Value="classModel.Description" />
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Save" Disabled="!isFormValid" Color="Color.Primary">Lưu</MudButton>
+        <MudButton OnClick="Cancel">Hủy</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [Parameter] public ClassModel Class { get; set; }
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    private MudForm form;
+    private ClassModel classModel;
+    private bool isFormValid;
+
+    protected override void OnInitialized()
+    {
+        classModel = Class != null ? new ClassModel
+        {
+            Id = Class.Id,
+            Name = Class.Name,
+            TrainerId = Class.TrainerId,
+            TrainerName = Class.TrainerName,
+            Schedule = Class.Schedule,
+            MaxMembers = Class.MaxMembers,
+            CurrentMembers = Class.CurrentMembers,
+            Description = Class.Description,
+            RegisteredMembers = Class.RegisteredMembers
+        } : new ClassModel();
+    }
+
+    private async Task Save()
+    {
+        await form.Validate();
+        if (form.IsValid)
+        {
+            if (classModel.Id == 0)
+            {
+                await ClassService.CreateClassAsync(classModel);
+                Snackbar.Add("Đã thêm lớp học mới", Severity.Success);
+            }
+            else
+            {
+                await ClassService.UpdateClassAsync(classModel.Id, classModel);
+                Snackbar.Add("Đã cập nhật lớp học", Severity.Success);
+            }
+
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+}

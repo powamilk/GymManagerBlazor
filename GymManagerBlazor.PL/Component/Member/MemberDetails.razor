@@ -13,7 +13,7 @@
         <p><strong>Email:</strong> @Member.Email</p>
         <p><strong>Điện Thoại:</strong> @Member.Phone</p>
         <p><strong>Loại Thẻ:</strong> @Member.MembershipType</p>
-        <p><strong>Ngày Tham Gia:</strong> @Member.JoinDate.ToString("dd/MM/yyyy")</p>
+        <p><strong>Ngày Tham Gia:</strong> @Member.JoinDate?.ToString("dd/MM/yyyy")</p>
         <button @onclick="GoBack">Quay Lại</button>
     </div>
 }

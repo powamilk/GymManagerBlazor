@@ -1,0 +1,89 @@
+﻿@page "/class-list"
+@using GymManagerBlazor.BUS.Models
+@using GymManagerBlazor.BUS.Services.Interface
+@using MudBlazor
+@inject IClassService ClassService
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<PageTitle>Quản Lý Lớp Học</PageTitle>
+
+<h3>Quản lý Lớp học</h3>
+
+<MudTable Items="classes" Hover="true" Bordered="true" Striped="true">
+    <ToolBarContent>
+        <MudButton Color="Color.Primary" OnClick="async () => await AddClass()">Thêm Lớp học</MudButton>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>ID</MudTh>
+        <MudTh>Tên Lớp</MudTh>
+        <MudTh>Huấn Luyện Viên</MudTh>
+        <MudTh>Lịch học</MudTh>
+        <MudTh>Max Học Viên</MudTh>
+        <MudTh>Số Học Viên Hiện Tại</MudTh>
+        <MudTh>Mô tả</MudTh>
+        <MudTh>Thao tác</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="ID">@context.Id</MudTd>
+        <MudTd DataLabel="Tên Lớp">@context.Name</MudTd>
+        <MudTd DataLabel="Huấn Luyện Viên">@context.TrainerName</MudTd>
+        <MudTd DataLabel="Lịch học">@context.Schedule</MudTd>
+        <MudTd DataLabel="Max Học Viên">@context.MaxMembers</MudTd>
+        <MudTd DataLabel="Số Học Viên Hiện Tại">@context.CurrentMembers</MudTd>
+        <MudTd DataLabel="Mô tả">@context.Description</MudTd>
+        <MudTd DataLabel="Thao tác">
+            <MudButton Color="Color.Secondary" OnClick="async () => await EditClass(context)">Sửa</MudButton>
+            <MudButton Color="Color.Error" OnClick="async () => await DeleteClass(context.Id)">Xóa</MudButton>
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    private List<ClassModel> classes;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadClasses();
+    }
+
+    private async Task LoadClasses()
+    {
+        classes = await ClassService.GetAllClassesAsync();
+    }
+
+    private async Task AddClass()
+    {
+        var dialog = DialogService.Show<ClassFormDialog>("Thêm Lớp học mới");
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            await LoadClasses();
+            Snackbar.Add("Đã thêm lớp học mới", Severity.Success);
+        }
+    }
+
+    private async Task EditClass(ClassModel classInfo)
+    {
+        var parameters = new DialogParameters { ["Class"] = classInfo };
+        var dialog = DialogService.Show<ClassFormDialog>("Sửa Lớp học", parameters);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            await LoadClasses();
+            Snackbar.Add("Đã cập nhật lớp học", Severity.Success);
+        }
+    }
+
+    private async Task DeleteClass(int classId)
+    {
+        bool? confirmed = await DialogService.ShowMessageBox("Xác nhận", "Bạn có chắc muốn xóa lớp học này?",
+                                                             yesText: "Xóa", noText: "Hủy");
+        if (confirmed == true)
+        {
+            await ClassService.DeleteClassAsync(classId);
+            await LoadClasses();
+            Snackbar.Add("Đã xóa lớp học", Severity.Success);
+        }
+    }
+}

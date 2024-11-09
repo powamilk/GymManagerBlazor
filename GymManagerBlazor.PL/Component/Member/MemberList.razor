@@ -28,7 +28,7 @@
                 <td>@member.Email</td>
                 <td>@member.Phone</td>
                 <td>@member.MembershipType</td>
-                <td>@member.JoinDate.ToString("dd/MM/yyyy")</td>
+                <td>@member.JoinDate?.ToString("dd/MM/yyyy")</td>
                 <td>
                     <button @onclick="() => ViewDetails(member.Id)">Chi Tiết</button>
                     <button @onclick="() => EditMember(member.Id)">Chỉnh Sửa</button>

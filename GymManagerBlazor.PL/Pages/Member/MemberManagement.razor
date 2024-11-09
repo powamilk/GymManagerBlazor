@@ -1,4 +1,4 @@
-﻿@page "/members"
+﻿@page "/members-list"
 @using AutoMapper
 @using GymManagerBlazor.BUS.Services.Interface
 @using GymManagerBlazor.BUS.ViewModels
@@ -14,7 +14,7 @@
 
 <MudTable Items="members" Hover="true" Bordered="true" Striped="true">
     <ToolBarContent>
-        <MudButton Color="Color.Primary" OnClick="AddMember">Thêm Thành viên</MudButton>
+        <MudButton Color="Color.Primary" OnClick="async () => await AddMember()">Thêm Thành viên</MudButton>
     </ToolBarContent>
     <HeaderContent>
         <MudTh>ID</MudTh>
@@ -31,9 +31,9 @@
         <MudTd DataLabel="Email">@context.Email</MudTd>
         <MudTd DataLabel="Số điện thoại">@context.Phone</MudTd>
         <MudTd DataLabel="Loại thẻ">@context.MembershipType</MudTd>
-        <MudTd DataLabel="Ngày tham gia">@context.JoinDate.ToShortDateString()</MudTd>
+        <MudTd DataLabel="Ngày tham gia">@context.JoinDate?.ToShortDateString()</MudTd>
         <MudTd DataLabel="Thao tác">
-            <MudButton Color="Color.Secondary" OnClick="() => EditMember(context)">Sửa</MudButton>
+            <MudButton Color="Color.Secondary" OnClick="async () => await EditMember(context)">Sửa</MudButton>
             <MudButton Color="Color.Error" OnClick="() => DeleteMember(context.Id)">Xóa</MudButton>
         </MudTd>
     </RowTemplate>
@@ -57,11 +57,10 @@
     {
         var dialog = DialogService.Show<MemberFormDialog>("Thêm Thành viên mới");
         var result = await dialog.Result;
-        if (!result.Canceled)
+        if (result.Canceled == false)
         {
             await LoadMembers();
         }
-
     }
 
     private async Task EditMember(MemberViewModel member)
@@ -69,23 +68,23 @@
         var parameters = new DialogParameters { ["Member"] = member };
         var dialog = DialogService.Show<MemberFormDialog>("Sửa Thành viên", parameters);
         var result = await dialog.Result;
-        if (!result.Canceled)
+        if (result.Canceled == false)
         {
             await LoadMembers();
         }
-
     }
 
     private async Task DeleteMember(int memberId)
     {
-        bool confirmed = await DialogService.ShowMessageBox("Xác nhận", "Bạn có chắc muốn xóa thành viên này?",
-                                                            yesText: "Xóa", noText: "Hủy") ?? false;
-        if (confirmed)
+        bool? confirmed = await DialogService.ShowMessageBox("Xác nhận", "Bạn có chắc muốn xóa thành viên này?",
+                                                            yesText: "Xóa", noText: "Hủy");
+        if (confirmed == true)
         {
             await MemberService.DeleteMemberAsync(memberId);
             await LoadMembers();
             Snackbar.Add("Đã xóa thành viên", Severity.Success);
         }
     }
+
 
 }

@@ -1,0 +1,87 @@
+﻿@page "/trainers-list"
+@using GymManagerBlazor.BUS.Models
+@using GymManagerBlazor.BUS.Services.Interface
+@using MudBlazor
+@inject ITrainerService TrainerService
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<PageTitle>Quản Lý Huấn Luyện Viên</PageTitle>
+
+<h3>Quản lý Huấn Luyện Viên</h3>
+
+<MudTable Items="trainers" Hover="true" Bordered="true" Striped="true">
+    <ToolBarContent>
+        <MudButton Color="Color.Primary" OnClick="async () => await AddTrainer()">Thêm Huấn Luyện Viên</MudButton>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>ID</MudTh>
+        <MudTh>Tên</MudTh>
+        <MudTh>Chuyên Môn</MudTh>
+        <MudTh>Năm Kinh Nghiệm</MudTh>
+        <MudTh>Email</MudTh>
+        <MudTh>Số Điện Thoại</MudTh>
+        <MudTh>Thao tác</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="ID">@context.Id</MudTd>
+        <MudTd DataLabel="Tên">@context.Name</MudTd>
+        <MudTd DataLabel="Chuyên Môn">@context.Specialty</MudTd>
+        <MudTd DataLabel="Năm Kinh Nghiệm">@context.ExperienceYears</MudTd>
+        <MudTd DataLabel="Email">@context.Email</MudTd>
+        <MudTd DataLabel="Số Điện Thoại">@context.Phone</MudTd>
+        <MudTd DataLabel="Thao tác">
+            <MudButton Color="Color.Secondary" OnClick="async () => await EditTrainer(context)">Sửa</MudButton>
+            <MudButton Color="Color.Error" OnClick="async () => await DeleteTrainer(context.Id)">Xóa</MudButton>
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    private List<TrainerModel> trainers;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTrainers();
+    }
+
+    private async Task LoadTrainers()
+    {
+        trainers = await TrainerService.GetAllTrainersAsync();
+    }
+
+    private async Task AddTrainer()
+    {
+        var dialog = DialogService.Show<TrainerFormDialog>("Thêm Huấn Luyện Viên mới");
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            await LoadTrainers();
+            Snackbar.Add("Đã thêm huấn luyện viên mới", Severity.Success);
+        }
+    }
+
+    private async Task EditTrainer(TrainerModel trainer)
+    {
+        var parameters = new DialogParameters { ["Trainer"] = trainer };
+        var dialog = DialogService.Show<TrainerFormDialog>("Sửa Huấn Luyện Viên", parameters);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            await LoadTrainers();
+            Snackbar.Add("Đã cập nhật huấn luyện viên", Severity.Success);
+        }
+    }
+
+    private async Task DeleteTrainer(int trainerId)
+    {
+        bool? confirmed = await DialogService.ShowMessageBox("Xác nhận", "Bạn có chắc muốn xóa huấn luyện viên này?",
+                                                             yesText: "Xóa", noText: "Hủy");
+        if (confirmed == true)
+        {
+            await TrainerService.DeleteTrainerAsync(trainerId);
+            await LoadTrainers();
+            Snackbar.Add("Đã xóa huấn luyện viên", Severity.Success);
+        }
+    }
+}

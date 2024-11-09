@@ -1,0 +1,81 @@
+﻿@page "/class-registrations"
+@using GymManagerBlazor.BUS.Models
+@using GymManagerBlazor.BUS.Services.Interface
+@using MudBlazor
+@inject IClassRegistrationService ClassRegistrationService
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<PageTitle>Quản Lý Đăng Ký Lớp Học</PageTitle>
+
+<h3>Quản lý Đăng Ký Lớp Học</h3>
+
+<MudTable Items="classRegistrations" Hover="true" Bordered="true" Striped="true">
+    <ToolBarContent>
+        <MudButton Color="Color.Primary" OnClick="async () => await AddClassRegistration()">Thêm Đăng Ký</MudButton>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>ID</MudTh>
+        <MudTh>Học Viên</MudTh>
+        <MudTh>Lớp Học</MudTh>
+        <MudTh>Thao tác</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="ID">@context.Id</MudTd>
+        <MudTd DataLabel="Học Viên">@context.MemberName</MudTd>
+        <MudTd DataLabel="Lớp Học">@context.ClassName</MudTd>
+        <MudTd DataLabel="Thao tác">
+            <MudButton Color="Color.Secondary" OnClick="async () => await EditClassRegistration(context)">Sửa</MudButton>
+            <MudButton Color="Color.Error" OnClick="async () => await DeleteClassRegistration(context.Id)">Xóa</MudButton>
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    private List<ClassRegistrationModel> classRegistrations;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadClassRegistrations();
+    }
+
+    private async Task LoadClassRegistrations()
+    {
+        classRegistrations = await ClassRegistrationService.GetAllRegistrationsAsync();
+    }
+
+    private async Task AddClassRegistration()
+    {
+        var dialog = DialogService.Show<ClassRegistrationFormDialog>("Thêm Đăng Ký Mới");
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            await LoadClassRegistrations();
+            Snackbar.Add("Đã thêm đăng ký mới", Severity.Success);
+        }
+    }
+
+    private async Task EditClassRegistration(ClassRegistrationModel registration)
+    {
+        var parameters = new DialogParameters { ["ClassRegistration"] = registration };
+        var dialog = DialogService.Show<ClassRegistrationFormDialog>("Sửa Đăng Ký", parameters);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            await LoadClassRegistrations();
+            Snackbar.Add("Đã cập nhật đăng ký", Severity.Success);
+        }
+    }
+
+    private async Task DeleteClassRegistration(int registrationId)
+    {
+        bool? confirmed = await DialogService.ShowMessageBox("Xác nhận", "Bạn có chắc muốn xóa đăng ký này?",
+                                                             yesText: "Xóa", noText: "Hủy");
+        if (confirmed == true)
+        {
+            await ClassRegistrationService.DeleteRegistrationAsync(registrationId);
+            await LoadClassRegistrations();
+            Snackbar.Add("Đã xóa đăng ký", Severity.Success);
+        }
+    }
+}
