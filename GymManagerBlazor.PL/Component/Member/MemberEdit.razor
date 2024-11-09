@@ -54,11 +54,11 @@ else
     private async Task HandleValidSubmit()
     {
         await MemberService.UpdateMemberAsync(Id, MemberToEdit);
-        Navigation.NavigateTo("/members");
+        Navigation.NavigateTo("/members-list");
     }
 
     private void GoBack()
     {
-        Navigation.NavigateTo("/members");
+        Navigation.NavigateTo("/members-list");
     }
 }

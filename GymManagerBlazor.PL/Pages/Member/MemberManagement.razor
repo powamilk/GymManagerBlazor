@@ -2,43 +2,45 @@
 @using AutoMapper
 @using GymManagerBlazor.BUS.Services.Interface
 @using GymManagerBlazor.BUS.ViewModels
+@using Microsoft.EntityFrameworkCore.Metadata.Internal
 @using MudBlazor
 @inject IMemberService MemberService
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 @inject IMapper Mapper
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
 
 <PageTitle>Danh sách Thành Viên</PageTitle>
 
 <h3>Danh sách Thành Viên</h3>
 
-<MudTable Items="members" Hover="true" Bordered="true" Striped="true">
-    <ToolBarContent>
-        <MudButton Color="Color.Primary" OnClick="async () => await AddMember()" StartIcon="@Icons.Material.Filled.Add">
-            Thêm Thành Viên Mới
-        </MudButton>
-    </ToolBarContent>
-    <HeaderContent>
-        <MudTh>Tên</MudTh>
-        <MudTh>Email</MudTh>
-        <MudTh>Điện Thoại</MudTh>
-        <MudTh>Loại Thẻ</MudTh>
-        <MudTh>Ngày Tham Gia</MudTh>
-        <MudTh>Thao Tác</MudTh>
-    </HeaderContent>
-    <RowTemplate>
-        <MudTd DataLabel="Tên">@context.Name</MudTd>
-        <MudTd DataLabel="Email">@context.Email</MudTd>
-        <MudTd DataLabel="Điện Thoại">@context.Phone</MudTd>
-        <MudTd DataLabel="Loại Thẻ">@context.MembershipType</MudTd>
-        <MudTd DataLabel="Ngày Tham Gia">@context.JoinDate?.ToShortDateString()</MudTd>
-        <MudTd DataLabel="Thao Tác">
-            <MudIconButton Icon="@Icons.Material.Filled.Info" Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small" OnClick="async () => await ViewMember(context)" />
-            <MudIconButton Icon="@Icons.Material.Filled.Edit" Variant="Variant.Outlined" Color="Color.Secondary" Size="Size.Small" OnClick="async () => await EditMember(context)" />
-            <MudIconButton Icon="@Icons.Material.Filled.Delete" Variant="Variant.Outlined" Color="Color.Error" Size="Size.Small" OnClick="() => DeleteMember(context.Id)" />
-        </MudTd>
-    </RowTemplate>
-</MudTable>
+<MudPaper Class="py-6">
+    <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Title="Add" Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small" @onclick="AddMember" />
+    <MudTable Items="members" Hover="true" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info">
+    @* <MudTable Items="members" Hover="true" Bordered="true" Striped="true" Class="mt-4" LoadingProgressColor="Color.Info"> *@
+        <HeaderContent>
+            <MudTh>Tên</MudTh>
+            <MudTh>Email</MudTh>
+            <MudTh>Điện Thoại</MudTh>
+            <MudTh>Loại Thẻ</MudTh>
+            <MudTh>Ngày Tham Gia</MudTh>
+            <MudTh>Thao Tác</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Tên">@context.Name</MudTd>
+            <MudTd DataLabel="Email">@context.Email</MudTd>
+            <MudTd DataLabel="Điện Thoại">@context.Phone</MudTd>
+            <MudTd DataLabel="Loại Thẻ">@context.MembershipType</MudTd>
+            <MudTd DataLabel="Ngày Tham Gia">@context.JoinDate?.ToShortDateString()</MudTd>
+            <MudTd DataLabel="Thao Tác">
+                <MudIconButton Icon="@Icons.Material.Filled.Info" Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small" @onclick="() => ViewDetail(context.Id)" />
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Variant="Variant.Outlined" Color="Color.Secondary" Size="Size.Small" @onclick="() => EditMember(context.Id)" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="delete" Variant="Variant.Outlined" Color="Color.Error" Size="Size.Small" @onclick="() => DeleteMember(context.Id)" />
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudPaper>
 
 @code {
     private List<MemberViewModel> members;
@@ -54,43 +56,29 @@
         members = Mapper.Map<List<MemberViewModel>>(memberModels);
     }
 
-    private async Task AddMember()
+    private void AddMember()
     {
-        var dialog = DialogService.Show<MemberFormDialog>("Thêm Thành Viên Mới");
-        var result = await dialog.Result;
-        if (!result.Canceled)
-        {
-            await LoadMembers();
-            Snackbar.Add("Đã thêm thành viên mới", MudBlazor.Severity.Success);
-        }
+        Navigation.NavigateTo("/members/create");
     }
 
-    private async Task ViewMember(MemberViewModel member)
+    private void ViewDetail(int id)
     {
-        // Implement chi tiết hiển thị thành viên nếu có
+        Navigation.NavigateTo($"/members/details/{id}");
     }
 
-    private async Task EditMember(MemberViewModel member)
+    private void EditMember(int id)
     {
-        var parameters = new DialogParameters { ["Member"] = member };
-        var dialog = DialogService.Show<MemberFormDialog>("Chỉnh Sửa Thành Viên", parameters);
-        var result = await dialog.Result;
-        if (!result.Canceled)
-        {
-            await LoadMembers();
-            Snackbar.Add("Đã cập nhật thông tin thành viên", MudBlazor.Severity.Success);
-        }
+        Navigation.NavigateTo($"/members/edit/{id}");
     }
 
-    private async Task DeleteMember(int memberId)
+    private async Task DeleteMember(int id)
     {
-        bool? confirmed = await DialogService.ShowMessageBox("Xác nhận", "Bạn có chắc muốn xóa thành viên này?",
-                                                             yesText: "Xóa", noText: "Hủy");
-        if (confirmed == true)
+        var confirmed = await JS.InvokeAsync<bool>("confirm", "Bạn có chắc muốn xóa thành viên này?");
+        if (confirmed)
         {
-            await MemberService.DeleteMemberAsync(memberId);
-            await LoadMembers();
-            Snackbar.Add("Đã xóa thành viên", MudBlazor.Severity.Success);
+            await MemberService.DeleteMemberAsync(id);
+            var memberModels = await MemberService.GetAllMembersAsync();
+            members = Mapper.Map<List<MemberViewModel>>(memberModels);
         }
     }
 }
