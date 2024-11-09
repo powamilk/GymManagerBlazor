@@ -8,33 +8,34 @@
 @inject ISnackbar Snackbar
 @inject IMapper Mapper
 
-<PageTitle>Member Management</PageTitle>
+<PageTitle>Danh sách Thành Viên</PageTitle>
 
-<h3>Quản lý Thành viên</h3>
+<h3>Danh sách Thành Viên</h3>
 
 <MudTable Items="members" Hover="true" Bordered="true" Striped="true">
     <ToolBarContent>
-        <MudButton Color="Color.Primary" OnClick="async () => await AddMember()">Thêm Thành viên</MudButton>
+        <MudButton Color="Color.Primary" OnClick="async () => await AddMember()" StartIcon="@Icons.Material.Filled.Add">
+            Thêm Thành Viên Mới
+        </MudButton>
     </ToolBarContent>
     <HeaderContent>
-        <MudTh>ID</MudTh>
         <MudTh>Tên</MudTh>
         <MudTh>Email</MudTh>
-        <MudTh>Số điện thoại</MudTh>
-        <MudTh>Loại thẻ</MudTh>
-        <MudTh>Ngày tham gia</MudTh>
-        <MudTh>Thao tác</MudTh>
+        <MudTh>Điện Thoại</MudTh>
+        <MudTh>Loại Thẻ</MudTh>
+        <MudTh>Ngày Tham Gia</MudTh>
+        <MudTh>Thao Tác</MudTh>
     </HeaderContent>
     <RowTemplate>
-        <MudTd DataLabel="ID">@context.Id</MudTd>
         <MudTd DataLabel="Tên">@context.Name</MudTd>
         <MudTd DataLabel="Email">@context.Email</MudTd>
-        <MudTd DataLabel="Số điện thoại">@context.Phone</MudTd>
-        <MudTd DataLabel="Loại thẻ">@context.MembershipType</MudTd>
-        <MudTd DataLabel="Ngày tham gia">@context.JoinDate?.ToShortDateString()</MudTd>
-        <MudTd DataLabel="Thao tác">
-            <MudButton Color="Color.Secondary" OnClick="async () => await EditMember(context)">Sửa</MudButton>
-            <MudButton Color="Color.Error" OnClick="() => DeleteMember(context.Id)">Xóa</MudButton>
+        <MudTd DataLabel="Điện Thoại">@context.Phone</MudTd>
+        <MudTd DataLabel="Loại Thẻ">@context.MembershipType</MudTd>
+        <MudTd DataLabel="Ngày Tham Gia">@context.JoinDate?.ToShortDateString()</MudTd>
+        <MudTd DataLabel="Thao Tác">
+            <MudIconButton Icon="@Icons.Material.Filled.Info" Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small" OnClick="async () => await ViewMember(context)" />
+            <MudIconButton Icon="@Icons.Material.Filled.Edit" Variant="Variant.Outlined" Color="Color.Secondary" Size="Size.Small" OnClick="async () => await EditMember(context)" />
+            <MudIconButton Icon="@Icons.Material.Filled.Delete" Variant="Variant.Outlined" Color="Color.Error" Size="Size.Small" OnClick="() => DeleteMember(context.Id)" />
         </MudTd>
     </RowTemplate>
 </MudTable>
@@ -55,36 +56,41 @@
 
     private async Task AddMember()
     {
-        var dialog = DialogService.Show<MemberFormDialog>("Thêm Thành viên mới");
+        var dialog = DialogService.Show<MemberFormDialog>("Thêm Thành Viên Mới");
         var result = await dialog.Result;
-        if (result.Canceled == false)
+        if (!result.Canceled)
         {
             await LoadMembers();
+            Snackbar.Add("Đã thêm thành viên mới", MudBlazor.Severity.Success);
         }
+    }
+
+    private async Task ViewMember(MemberViewModel member)
+    {
+        // Implement chi tiết hiển thị thành viên nếu có
     }
 
     private async Task EditMember(MemberViewModel member)
     {
         var parameters = new DialogParameters { ["Member"] = member };
-        var dialog = DialogService.Show<MemberFormDialog>("Sửa Thành viên", parameters);
+        var dialog = DialogService.Show<MemberFormDialog>("Chỉnh Sửa Thành Viên", parameters);
         var result = await dialog.Result;
-        if (result.Canceled == false)
+        if (!result.Canceled)
         {
             await LoadMembers();
+            Snackbar.Add("Đã cập nhật thông tin thành viên", MudBlazor.Severity.Success);
         }
     }
 
     private async Task DeleteMember(int memberId)
     {
         bool? confirmed = await DialogService.ShowMessageBox("Xác nhận", "Bạn có chắc muốn xóa thành viên này?",
-                                                            yesText: "Xóa", noText: "Hủy");
+                                                             yesText: "Xóa", noText: "Hủy");
         if (confirmed == true)
         {
             await MemberService.DeleteMemberAsync(memberId);
             await LoadMembers();
-            Snackbar.Add("Đã xóa thành viên", Severity.Success);
+            Snackbar.Add("Đã xóa thành viên", MudBlazor.Severity.Success);
         }
     }
-
-
 }

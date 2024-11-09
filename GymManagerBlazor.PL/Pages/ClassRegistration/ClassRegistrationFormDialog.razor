@@ -1,9 +1,12 @@
-﻿@using GymManagerBlazor.BUS.Models
+﻿@using FluentValidation
+@using GymManagerBlazor.BUS.Models
 @using GymManagerBlazor.BUS.Services.Interface
 @using MudBlazor
+@using MudSeverity = MudBlazor.Severity
 @inject ISnackbar Snackbar
 @inject IClassRegistrationService ClassRegistrationService
 @inject IDialogService DialogService
+
 
 <MudDialog>
     <DialogContent>
@@ -31,13 +34,13 @@
     protected override void OnInitialized()
     {
         classRegistrationModel = ClassRegistration != null ? new ClassRegistrationModel
-        {
-            Id = ClassRegistration.Id,
-            MemberId = ClassRegistration.MemberId,
-            ClassId = ClassRegistration.ClassId,
-            MemberName = ClassRegistration.MemberName,
-            ClassName = ClassRegistration.ClassName
-        } : new ClassRegistrationModel();
+            {
+                Id = ClassRegistration.Id,
+                MemberId = ClassRegistration.MemberId,
+                ClassId = ClassRegistration.ClassId,
+                MemberName = ClassRegistration.MemberName,
+                ClassName = ClassRegistration.ClassName
+            } : new ClassRegistrationModel();
     }
 
     private async Task Save()
@@ -48,12 +51,12 @@
             if (classRegistrationModel.Id == 0)
             {
                 await ClassRegistrationService.CreateRegistrationAsync(classRegistrationModel);
-                Snackbar.Add("Đã thêm đăng ký mới", Severity.Success);
+                Snackbar.Add("Đã thêm đăng ký mới", MudSeverity.Success);
             }
             else
             {
                 await ClassRegistrationService.UpdateRegistrationAsync(classRegistrationModel.Id, classRegistrationModel);
-                Snackbar.Add("Đã cập nhật đăng ký", Severity.Success);
+                Snackbar.Add("Đã cập nhật đăng ký", MudSeverity.Success);
             }
 
             MudDialog.Close(DialogResult.Ok(true));
@@ -65,3 +68,4 @@
         MudDialog.Cancel();
     }
 }
+

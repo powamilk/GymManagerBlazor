@@ -1,81 +1,90 @@
 ﻿@page "/class-registrations"
 @using GymManagerBlazor.BUS.Models
 @using GymManagerBlazor.BUS.Services.Interface
+@using GymManagerBlazor.PL.Pages.Member
 @using MudBlazor
-@inject IClassRegistrationService ClassRegistrationService
+@inject IMemberService MemberService
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 
-<PageTitle>Quản Lý Đăng Ký Lớp Học</PageTitle>
+<PageTitle>Quản Lý Thành Viên</PageTitle>
 
-<h3>Quản lý Đăng Ký Lớp Học</h3>
+<h3>Quản lý Thành Viên</h3>
 
-<MudTable Items="classRegistrations" Hover="true" Bordered="true" Striped="true">
+<MudTable Items="members" Hover="true" Bordered="true" Striped="true">
     <ToolBarContent>
-        <MudButton Color="Color.Primary" OnClick="async () => await AddClassRegistration()">Thêm Đăng Ký</MudButton>
+        <MudButton Color="Color.Primary" OnClick="async () => await AddMember()" StartIcon="@Icons.Material.Filled.Add">
+            Thêm Thành Viên
+        </MudButton>
     </ToolBarContent>
     <HeaderContent>
         <MudTh>ID</MudTh>
-        <MudTh>Học Viên</MudTh>
-        <MudTh>Lớp Học</MudTh>
-        <MudTh>Thao tác</MudTh>
+        <MudTh>Họ Tên</MudTh>
+        <MudTh>Email</MudTh>
+        <MudTh>Điện Thoại</MudTh>
+        <MudTh>Loại Thẻ</MudTh>
+        <MudTh>Ngày Tham Gia</MudTh>
+        <MudTh>Thao Tác</MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="ID">@context.Id</MudTd>
-        <MudTd DataLabel="Học Viên">@context.MemberName</MudTd>
-        <MudTd DataLabel="Lớp Học">@context.ClassName</MudTd>
-        <MudTd DataLabel="Thao tác">
-            <MudButton Color="Color.Secondary" OnClick="async () => await EditClassRegistration(context)">Sửa</MudButton>
-            <MudButton Color="Color.Error" OnClick="async () => await DeleteClassRegistration(context.Id)">Xóa</MudButton>
+        <MudTd DataLabel="Họ Tên">@context.Name</MudTd>
+        <MudTd DataLabel="Email">@context.Email</MudTd>
+        <MudTd DataLabel="Điện Thoại">@context.Phone</MudTd>
+        <MudTd DataLabel="Loại Thẻ">@context.MembershipType</MudTd>
+        <MudTd DataLabel="Ngày Tham Gia">@context.JoinDate?.ToShortDateString()</MudTd>
+        <MudTd DataLabel="Thao Tác">
+            <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Secondary" OnClick="async () => await EditMember(context)" />
+            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="async () => await DeleteMember(context.Id)" />
         </MudTd>
     </RowTemplate>
 </MudTable>
 
 @code {
-    private List<ClassRegistrationModel> classRegistrations;
+    private List<MemberModel> members;
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadClassRegistrations();
+        await LoadMembers();
     }
 
-    private async Task LoadClassRegistrations()
+    private async Task LoadMembers()
     {
-        classRegistrations = await ClassRegistrationService.GetAllRegistrationsAsync();
+        members = await MemberService.GetAllMembersAsync();
     }
 
-    private async Task AddClassRegistration()
+    private async Task AddMember()
     {
-        var dialog = DialogService.Show<ClassRegistrationFormDialog>("Thêm Đăng Ký Mới");
+        var dialog = DialogService.Show<MemberFormDialog>("Thêm Thành Viên Mới");
         var result = await dialog.Result;
         if (!result.Canceled)
         {
-            await LoadClassRegistrations();
-            Snackbar.Add("Đã thêm đăng ký mới", Severity.Success);
+            await LoadMembers();
+            Snackbar.Add("Đã thêm thành viên mới", Severity.Success);
         }
     }
 
-    private async Task EditClassRegistration(ClassRegistrationModel registration)
+    private async Task EditMember(MemberModel member)
     {
-        var parameters = new DialogParameters { ["ClassRegistration"] = registration };
-        var dialog = DialogService.Show<ClassRegistrationFormDialog>("Sửa Đăng Ký", parameters);
+        var parameters = new DialogParameters { ["Member"] = member };
+        var dialog = DialogService.Show<MemberFormDialog>("Sửa Thành Viên", parameters);
         var result = await dialog.Result;
         if (!result.Canceled)
         {
-            await LoadClassRegistrations();
-            Snackbar.Add("Đã cập nhật đăng ký", Severity.Success);
+            await LoadMembers();
+            Snackbar.Add("Đã cập nhật thông tin thành viên", Severity.Success);
         }
     }
 
-    private async Task DeleteClassRegistration(int registrationId)
+    private async Task DeleteMember(int memberId)
     {
-        bool? confirmed = await DialogService.ShowMessageBox("Xác nhận", "Bạn có chắc muốn xóa đăng ký này?",
+        bool? confirmed = await DialogService.ShowMessageBox("Xác nhận", "Bạn có chắc muốn xóa thành viên này?",
                                                              yesText: "Xóa", noText: "Hủy");
         if (confirmed == true)
         {
-            await ClassRegistrationService.DeleteRegistrationAsync(registrationId);
-            await LoadClassRegistrations();
-            Snackbar.Add("Đã xóa đăng ký", Severity.Success);
+            await MemberService.DeleteMemberAsync(memberId);
+            await LoadMembers();
+            Snackbar.Add("Đã xóa thành viên", Severity.Success);
         }
     }
 }
