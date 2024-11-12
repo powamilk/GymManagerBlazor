@@ -4,43 +4,34 @@
 @inject IMemberService MemberService
 @inject NavigationManager Navigation
 
-<h3>Chỉnh Sửa Thành Viên</h3>
+<MudContainer MaxWidth="MaxWidth.Small" Class="d-flex justify-center">
+    <MudPaper Class="p-4 m-4" Elevation="1" Style="width: 100%;">
+        <MudText Typo="Typo.h6" GutterBottom="true">Chỉnh Sửa Thành Viên</MudText>
 
-@if (MemberToEdit != null)
-{
-    <EditForm Model="MemberToEdit" OnValidSubmit="HandleValidSubmit">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
+        @if (MemberToEdit != null)
+        {
+            <MudForm Model="MemberToEdit" OnValidSubmit="HandleValidSubmit">
+                <MudTextField Label="Tên" @bind-Value="MemberToEdit.Name" Required="true" Immediate="true" />
+                <MudTextField Label="Email" @bind-Value="MemberToEdit.Email" Required="true" Immediate="true" />
+                <MudTextField Label="Điện Thoại" @bind-Value="MemberToEdit.Phone" Required="true" Immediate="true" />
 
-        <div>
-            <label>Tên:</label>
-            <InputText @bind-Value="MemberToEdit.Name" />
-        </div>
-        <div>
-            <label>Email:</label>
-            <InputText @bind-Value="MemberToEdit.Email" />
-        </div>
-        <div>
-            <label>Điện Thoại:</label>
-            <InputText @bind-Value="MemberToEdit.Phone" />
-        </div>
-        <div>
-            <label>Loại Thẻ:</label>
-            <InputText @bind-Value="MemberToEdit.MembershipType" />
-        </div>
-        <div>
-            <label>Ngày Tham Gia:</label>
-            <InputDate @bind-Value="MemberToEdit.JoinDate" />
-        </div>
+                <MudSelect Label="Loại Thẻ" @bind-Value="MemberToEdit.MembershipType" Required="true">
+                    <MudSelectItem Value="MembershipTypes.Basic">Basic</MudSelectItem>
+                    <MudSelectItem Value="MembershipTypes.Premium">Premium</MudSelectItem>
+                </MudSelect>
 
-        <button type="submit">Cập Nhật</button>
-        <button @onclick="GoBack">Hủy</button>
-    </EditForm>
-}
-else
-{
-    <p>Đang tải dữ liệu...</p>
-}
+                <MudDatePicker Label="Ngày Tham Gia" @bind-Date="MemberToEdit.JoinDate" Required="true" />
+
+                <MudButton Color="Color.Primary" Type="Submit" Variant="Variant.Filled">Cập Nhật</MudButton>
+                <MudButton Color="Color.Secondary" Variant="Variant.Outlined" OnClick="GoBack">Hủy</MudButton>
+            </MudForm>
+        }
+        else
+        {
+            <MudText Typo="Typo.body1">Đang tải dữ liệu...</MudText>
+        }
+    </MudPaper>
+</MudContainer>
 
 @code {
     [Parameter] public int Id { get; set; }

@@ -39,10 +39,16 @@ namespace GymManagerBlazor.BUS.Services.Implement
             var memberVM = await _memberRepository.GetByIdAsync(id);
             if (memberVM == null)
             {
+                Console.WriteLine($"Không tìm thấy thành viên với ID = {id}");
                 throw new Exception($"Không tìm thấy thành viên với ID = {id}");
+            }
+            else
+            {
+                Console.WriteLine($"Đã tìm thấy thành viên: {memberVM.Name}");
             }
             return _mapper.Map<MemberModel>(memberVM);
         }
+
 
         public async Task<bool> CreateMemberAsync(MemberModel member)
         {

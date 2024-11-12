@@ -63,8 +63,10 @@
 
     private void ViewDetail(int id)
     {
+        Console.WriteLine($"Navigating to details with ID: {id}");
         Navigation.NavigateTo($"/members/details/{id}");
     }
+
 
     private void EditMember(int id)
     {

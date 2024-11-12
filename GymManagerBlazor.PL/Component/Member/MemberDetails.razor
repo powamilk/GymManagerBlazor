@@ -4,23 +4,59 @@
 @inject IMemberService MemberService
 @inject NavigationManager Navigation
 
-<h3>Chi Tiết Thành Viên</h3>
+<MudContainer MaxWidth="MaxWidth.Medium" Class="d-flex justify-center">
+    <MudPaper Class="p-4 m-4" Elevation="1" Style="width: 100%;">
+        <MudText Typo="Typo.h6" GutterBottom="true">Thông Tin Thành Viên</MudText>
 
-@if (Member != null)
-{
-    <div>
-        <p><strong>Tên:</strong> @Member.Name</p>
-        <p><strong>Email:</strong> @Member.Email</p>
-        <p><strong>Điện Thoại:</strong> @Member.Phone</p>
-        <p><strong>Loại Thẻ:</strong> @Member.MembershipType</p>
-        <p><strong>Ngày Tham Gia:</strong> @Member.JoinDate?.ToString("dd/MM/yyyy")</p>
-        <button @onclick="GoBack">Quay Lại</button>
-    </div>
-}
-else
-{
-    <p>Đang tải dữ liệu...</p>
-}
+        @if (Member != null)
+        {
+            <MudGrid>
+                <MudItem xs="4">
+                    <strong>Tên:</strong>
+                </MudItem>
+                <MudItem xs="8">
+                    @Member.Name
+                </MudItem>
+
+                <MudItem xs="4">
+                    <strong>Email:</strong>
+                </MudItem>
+                <MudItem xs="8">
+                    @Member.Email
+                </MudItem>
+
+                <MudItem xs="4">
+                    <strong>Điện Thoại:</strong>
+                </MudItem>
+                <MudItem xs="8">
+                    @Member.Phone
+                </MudItem>
+
+                <MudItem xs="4">
+                    <strong>Loại Thẻ:</strong>
+                </MudItem>
+                <MudItem xs="8">
+                    @Member.MembershipType
+                </MudItem>
+
+                <MudItem xs="4">
+                    <strong>Ngày Tham Gia:</strong>
+                </MudItem>
+                <MudItem xs="8">
+                    @Member.JoinDate?.ToString("dd/MM/yyyy")
+                </MudItem>
+            </MudGrid>
+
+            <MudButton Color="Color.Secondary" Variant="Variant.Outlined" OnClick="GoBack" StartIcon="@Icons.Material.Filled.ArrowBack" Class="mt-4">
+                Quay Lại
+            </MudButton>
+        }
+        else
+        {
+            <MudText Typo="Typo.body1">Đang tải dữ liệu...</MudText>
+        }
+    </MudPaper>
+</MudContainer>
 
 @code {
     [Parameter] public int Id { get; set; }
@@ -29,6 +65,18 @@ else
     protected override async Task OnInitializedAsync()
     {
         Member = await MemberService.GetMemberByIdAsync(Id);
+        if (Member != null)
+        {
+            Console.WriteLine($"Name: {Member.Name}");
+            Console.WriteLine($"Email: {Member.Email}");
+            Console.WriteLine($"Phone: {Member.Phone}");
+            Console.WriteLine($"MembershipType: {Member.MembershipType}");
+            Console.WriteLine($"JoinDate: {Member.JoinDate}");
+        }
+        else
+        {
+            Console.WriteLine("Member is null");
+        }
     }
 
     private void GoBack()

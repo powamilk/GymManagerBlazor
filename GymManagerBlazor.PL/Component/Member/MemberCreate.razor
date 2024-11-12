@@ -4,39 +4,31 @@
 @inject IMemberService MemberService
 @inject NavigationManager Navigation
 
-<h3>Thêm Thành Viên Mới</h3>
+<MudContainer MaxWidth="MaxWidth.Small" Class="d-flex justify-center">
+    <MudPaper Class="p-4 m-4" Elevation="1" Style="width: 100%;">
+        <MudText Typo="Typo.h6" GutterBottom="true">Thêm Thành Viên Mới</MudText>
 
-<EditForm Model="NewMember" OnValidSubmit="HandleValidSubmit">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+        <MudForm Model="NewMember" @ref="form" OnValidSubmit="HandleValidSubmit">
+            <MudTextField Label="Tên" @bind-Value="NewMember.Name" Required="true" Immediate="true" />
+            <MudTextField Label="Email" @bind-Value="NewMember.Email" Required="true" Immediate="true" />
+            <MudTextField Label="Điện Thoại" @bind-Value="NewMember.Phone" Required="true" Immediate="true" />
 
-    <div>
-        <label>Tên:</label>
-        <InputText @bind-Value="NewMember.Name" />
-    </div>
-    <div>
-        <label>Email:</label>
-        <InputText @bind-Value="NewMember.Email" />
-    </div>
-    <div>
-        <label>Điện Thoại:</label>
-        <InputText @bind-Value="NewMember.Phone" />
-    </div>
-    <div>
-        <label>Loại Thẻ:</label>
-        <InputText @bind-Value="NewMember.MembershipType" />
-    </div>
-    <div>
-        <label>Ngày Tham Gia:</label>
-        <InputDate @bind-Value="NewMember.JoinDate" />
-    </div>
+            <MudSelect T="string" Label="Loại Thẻ" @bind-Value="NewMember.MembershipType" Required="true">
+                <MudSelectItem Value="MembershipTypes.Basic">Basic</MudSelectItem>
+                <MudSelectItem Value="MembershipTypes.Premium">Premium</MudSelectItem>
+            </MudSelect>
 
-    <button type="submit">Lưu</button>
-    <button @onclick="GoBack">Hủy</button>
-</EditForm>
+            <MudDatePicker Label="Ngày Tham Gia" @bind-Date="NewMember.JoinDate" Required="true" />
+
+            <MudButton Color="Color.Primary" Variant="Variant.Filled" Type="Submit">Lưu</MudButton>
+            <MudButton Color="Color.Secondary" Variant="Variant.Outlined" OnClick="GoBack">Hủy</MudButton>
+        </MudForm>
+    </MudPaper>
+</MudContainer>
 
 @code {
     private MemberModel NewMember { get; set; } = new MemberModel();
+    private MudForm form;
 
     private async Task HandleValidSubmit()
     {
